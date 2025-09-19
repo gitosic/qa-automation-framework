@@ -8,10 +8,19 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Тест для проверки, что WireMock работает корректно
+ * Тестовый класс для проверки работы WireMock сервера
+ * Содержит тесты для проверки доступности и корректности мок-сервера
+ * Наследует базовый класс TestBase для общей конфигурации тестов
+ *
+ * @author QA Team
+ * @version 1.0
  */
 public class WireMockTest extends TestBase {
 
+    /**
+     * Тест проверяет базовую доступность WireMock сервера
+     * Отправляет GET запрос на эндпоинт /login и проверяет статус 200
+     */
     @Test
     @DisplayName("[DEBUG] Проверка доступности WireMock")
     void testWireMockAccessibility() {
@@ -25,6 +34,10 @@ public class WireMockTest extends TestBase {
         System.out.println("✅ WireMock is accessible!");
     }
 
+    /**
+     * Тест проверяет содержимое ответа от WireMock сервера
+     * Проверяет наличие ожидаемых элементов в HTML ответе
+     */
     @Test
     @DisplayName("[DEBUG] Проверка содержимого ответа WireMock")
     void testWireMockResponseContent() {
@@ -48,6 +61,11 @@ public class WireMockTest extends TestBase {
         System.out.println("✅ WireMock response contains expected elements!");
     }
 
+    /**
+     * Тест проверяет API логина через прямые HTTP запросы
+     * Проверяет успешный и неуспешный сценарии авторизации
+     * Проверяет статус коды и CORS заголовки
+     */
     @Test
     @DisplayName("[DEBUG] Проверка API логина через RestAssured")
     void testLoginApiDirectly() {
@@ -76,6 +94,10 @@ public class WireMockTest extends TestBase {
         System.out.println("✅ API login tests passed!");
     }
 
+    /**
+     * Тест проверяет корректность настройки CORS (Cross-Origin Resource Sharing)
+     * Проверяет preflight OPTIONS запрос и соответствующие заголовки
+     */
     @Test
     @DisplayName("[DEBUG] Проверка CORS preflight")
     void testCorsPreflight() {

@@ -1,7 +1,6 @@
 package com.qa.framework.wiremock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -10,6 +9,14 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 /**
  * Класс для запуска и конфигурации WireMock сервера,
  * который эмулирует Banking Web Application.
+ *
+ * Предоставляет статические методы для управления мок-сервером:
+ * - Запуск и остановка сервера
+ * - Настройка заглушек (stubs) для эмуляции API
+ * - Предоставление базового URL сервера
+ *
+ * @author QA Team
+ * @version 1.0
  */
 public class BankAppMock {
 
@@ -17,6 +24,11 @@ public class BankAppMock {
     private static final String HOST = "localhost";
     private static WireMockServer wireMockServer;
 
+    /**
+     * Запускает WireMock сервер если он еще не запущен
+     * Использует файлы из директории src/test/resources/wiremock
+     * Настраивает все необходимые заглушки для эмуляции банковского приложения
+     */
     public static void start() {
         if (wireMockServer == null || !wireMockServer.isRunning()) {
             String rootPath = System.getProperty("user.dir") + "/src/test/resources/wiremock";
@@ -36,6 +48,9 @@ public class BankAppMock {
         }
     }
 
+    /**
+     * Останавливает WireMock сервер если он запущен
+     */
     public static void stop() {
         if (wireMockServer != null && wireMockServer.isRunning()) {
             wireMockServer.stop();
@@ -43,10 +58,26 @@ public class BankAppMock {
         }
     }
 
+    /**
+     * Возвращает базовый URL WireMock сервера
+     *
+     * @return строка с базовым URL в формате "http://localhost:8080"
+     */
     public static String getBaseUrl() {
         return "http://" + HOST + ":" + PORT;
     }
 
+    /**
+     * Настраивает заглушки для эмуляции API банковского приложения
+     * Включает:
+     * - Страницу логина (HTML)
+     * - API успешного логина
+     * - API неуспешного логина
+     * - CORS preflight запросы
+     * - Dashboard страницу
+     *
+     * @see #start()
+     */
     private static void setupStubs() {
         // Программно создаем мок для страницы логина
         wireMockServer.stubFor(get(urlEqualTo("/login"))
