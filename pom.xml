@@ -1,25 +1,137 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.yourcompany</groupId>
+  <!-- Координаты нашего фреймворка -->
+  <groupId>com.qa</groupId>
   <artifactId>qa-automation-framework</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>jar</packaging> <!-- Упаковываем как JAR, это же фреймворк -->
 
-  <name>qa-automation-framework</name>
-  <url>http://maven.apache.org</url>
+  <name>QA Automation Framework</name>
+  <description>A modern UI and API test automation framework</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source> <!-- Используем Java 17 -->
+    <maven.compiler.target>17</maven.compiler.target>
+    <junit.version>5.10.0</junit.version>
+    <selenide.version>7.0.4</selenide.version>
+    <rest-assured.version>5.3.2</rest-assured.version>
+    <jackson.version>2.15.3</jackson.version>
+    <logback.version>1.4.11</logback.version>
   </properties>
 
   <dependencies>
+    <!-- ЯДРО ТЕСТИРОВАНИЯ -->
+    <!-- JUnit 5: движок и параметризованные тесты -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- UI ТЕСТИРОВАНИЕ -->
+    <!-- Selenide: мощный фреймворк для UI тестов на основе Selenium -->
+    <dependency>
+      <groupId>com.codeborne</groupId>
+      <artifactId>selenide</artifactId>
+      <version>${selenide.version}</version>
+    </dependency>
+
+    <!-- API ТЕСТИРОВАНИЕ -->
+    <!-- RestAssured: библиотека для тестирования REST API -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- РАБОТА С ДАННЫМИ -->
+    <!-- Jackson: сериализация и десериализация JSON (для API моделей) -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- ЛОГИРОВАНИЕ -->
+    <!-- Logback: современная и производительная система логирования -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+
+    <!-- ОТЧЕТНОСТЬ И ЛОГГИРОВАНИЕ -->
+    <!-- Allure: фреймворк для построения детальных отчетов -->
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-selenide</artifactId>
+      <version>2.25.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-rest-assured</artifactId>
+      <version>2.25.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-junit5</artifactId>
+      <version>2.25.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Мокирование API -->
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>3.0.1</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Компилятор для Java 17 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+      <!-- Запускает JUnit 5 тесты -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+      </plugin>
+      <!-- Плагин для генерации Allure-отчетов -->
+      <plugin>
+        <groupId>io.qameta.allure</groupId>
+        <artifactId>allure-maven</artifactId> <!-- ВНИМАНИЕ: ИМЕННО TAK! -->
+        <version>2.13.0</version>
+        <configuration>
+          <reportVersion>2.25.0</reportVersion>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

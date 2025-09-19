@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/login"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "body": "<!DOCTYPE html><html><head><title>Bank App - Login</title><style>.error { color: red; display: none; } .success { color: green; display: none; }</style></head><body><h1>Welcome to Bank App</h1><form id=\"loginForm\"><input type=\"text\" id=\"username\" name=\"username\" placeholder=\"Username\" required><input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Password\" required><button type=\"submit\">Login</button></form><div id=\"errorMessage\" class=\"error\"></div><div id=\"successMessage\" class=\"success\"></div><script>document.getElementById('loginForm').addEventListener('submit', async (e) => { e.preventDefault(); const username = document.getElementById('username').value; const password = document.getElementById('password').value; document.getElementById('errorMessage').style.display = 'none'; document.getElementById('successMessage').style.display = 'none'; try { const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) }); const result = await response.json(); if (result.status === 'success') { document.getElementById('successMessage').style.display = 'block'; document.getElementById('successMessage').textContent = result.message || 'Login successful!'; setTimeout(() => { window.location.href = '/dashboard'; }, 1000); } else { document.getElementById('errorMessage').style.display = 'block'; document.getElementById('errorMessage').textContent = result.message || 'Invalid credentials'; } } catch (error) { document.getElementById('errorMessage').style.display = 'block'; document.getElementById('errorMessage').textContent = 'Network error'; } });</script></body></html>"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/login",
+    "bodyPatterns": [
+      {
+        "contains": "admin"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+      "Access-Control-Max-Age": "3600",
+      "Vary": "Origin"
+    },
+    "jsonBody": {
+      "status": "success",
+      "token": "fake-jwt-token-12345",
+      "message": "Login successful",
+      "user": {
+        "id": 1,
+        "name": "Admin User",
+        "email": "admin@bank.com"
+      }
+    }
+  }
+}

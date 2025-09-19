@@ -1,8 +1,58 @@
-# Default ignored files
+# Игнорируем временные файлы IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+target/
+.DS_Store
+
+# Игнорируем скомпилированные файлы
+*.class
+*.jar
+*.war
+*.ear
+
+# Игнорируем файлы конфигурации
 /shelf/
 /workspace.xml
-# Editor-based HTTP Client requests
-/httpRequests/
-# Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Игнорируем HTTP-запросы
+/httpRequests/
+
+# Игнорируем файлы логов
+logs/
+*.log
+
+# Игнорируем файлы с учетными данными
+#*.properties
+#!application.properties  # если нужен базовый файл
+
+# Игнорируем файлы с секретами
+#*.secret
+#*.env
+
+# Игнорируем файлы, созданные IDE
+.classpath
+.project
+.settings/
+
+# Игнорируем файлы сборки
+build/
+dist/
+
+# Игнорируем файлы кэша
+.gradle/
+.m2/
+
+# Игнорируем файлы отладки
+*.hprof
+
+# Игнорируем файлы с персональными настройками
+*.sublime-workspace
+*.vscode/
+
+# Игнорируем файлы документации
+docs/

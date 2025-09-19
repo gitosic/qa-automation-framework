@@ -1,0 +1,53 @@
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Показываем loading state
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+        loginButton.disabled = true;
+        loginButton.textContent = 'Logging in...';
+
+        try {
+            console.log('Sending login request...');
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            console.log('Response status:', response.status);
+            const result = await response.json();
+            console.log('Response data:', result);
+
+            if (result.status === 'success') {
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('successMessage').textContent = result.message || 'Login successful! Redirecting...';
+                document.getElementById('errorMessage').style.display = 'none';
+
+                // Редирект на dashboard через 1 секунду
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = result.message || 'Invalid credentials';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Network error: ' + error.message;
+            document.getElementById('successMessage').style.display = 'none';
+        } finally {
+            // Восстанавливаем кнопку
+            loginButton.disabled = false;
+            loginButton.textContent = 'Login';
+        }
+    });
+</script>
