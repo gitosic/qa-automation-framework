@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -40,6 +41,16 @@ public abstract class TestBase {
         Configuration.screenshots = true; // Включение автоматических скриншотов при падении тестов
         Configuration.savePageSource = false; // Не сохранять исходный код страницы при падении
         Configuration.baseUrl = "http://localhost:8080"; // Базовый URL для всех тестов
+        Configuration.headless = false; // При true браузер не будет виден, но тесты будут работать
+
+        // Отключаем предупреждения о паролях и другие уведомления
+        Configuration.browserCapabilities = new ChromeOptions()
+                .addArguments("--disable-features=PasswordLeakDetection")
+                .addArguments("--disable-password-manager-reauthentication")
+                .addArguments("--disable-save-password-bubble")
+                .addArguments("--disable-autofill-keyboard-accessory-view")
+                .addArguments("--disable-infobars")
+                .addArguments("--disable-notifications");
 
         // Подключаем Allure listener для красивого логгирования действий Selenide в отчетах
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
