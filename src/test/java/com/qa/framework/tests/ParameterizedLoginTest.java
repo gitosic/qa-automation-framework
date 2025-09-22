@@ -55,6 +55,7 @@ public class ParameterizedLoginTest extends TestBase {
     @DisplayName("CSV Source Test")
     @Tag("Smoke")
     @Tag("UI")
+    @Tag("DataFromCsvSource")
     void testLoginWithCsvSource(String username, String password,
                                 boolean expectedSuccess, String description,
                                 TestInfo testInfo) {
