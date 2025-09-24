@@ -61,16 +61,15 @@ public class ParameterizedLoginTest extends TestBase {
                                 TestInfo testInfo) {
 
         System.out.println("🚀 Запуск теста: " + description);
-        System.out.println("📊 Теги теста: " + testInfo.getTags());
 
-        open("http://localhost:3000/login");
+        // Используйте openBankApp вместо прямого open
+        openBankApp("/login");  // ← Это ключевое изменение!
         loginPage.waitForPageLoad();
 
         loginPage.enterUsername(username)
                 .enterPassword(password)
                 .clickLogin();
 
-        // Даем время для обработки
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

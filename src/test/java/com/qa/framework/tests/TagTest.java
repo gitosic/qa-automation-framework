@@ -15,7 +15,7 @@ public class TagTest {
     }
 
     @Test
-    @Tag("SomeTag2")
+    @Tag("SomeTag1")
     void testWithOtherTag2() {
         System.out.println("✅ Test with OtherTag executed 2");
         assertTrue(true);

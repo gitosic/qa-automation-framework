@@ -121,21 +121,32 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.1.2</version>
         <configuration>
+          <!-- Фильтрация по тегам -->
           <groups>${includeTags}</groups>
           <excludedGroups>${excludeTags}</excludedGroups>
+
           <properties>
             <configurationParameters>
               junit.jupiter.extensions.autodetection.enabled=true
             </configurationParameters>
           </properties>
+
+          <!-- AspectJ для Allure -->
           <argLine>
             -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
           </argLine>
+
           <systemPropertyVariables>
+            <!-- Allure -->
             <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+            <!-- Selenoid конфигурация -->
+            <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
+            <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
+            <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
           </systemPropertyVariables>
         </configuration>
         <dependencies>
+          <!-- AspectJ dependency -->
           <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>

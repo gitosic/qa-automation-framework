@@ -17,88 +17,124 @@ import static com.codeborne.selenide.Selenide.*;
 
 /**
  * Абстрактный базовый класс для всех тестовых классов в фреймворке.
- * Содержит общую конфигурацию и методы setup/teardown для UI и API тестирования.
- * Наследование от этого класса обеспечивает автоматическую инициализацию окружения
- * и корректное освобождение ресурсов после выполнения тестов.
- *
- * @author Vitaliu@yandex.ru
- * @version 1.0
  */
 public abstract class TestBase {
 
-    /**
-     * Метод инициализации, выполняемый один раз перед всеми тестами в классе.
-     * Настраивает конфигурацию Selenide, RestAssured и запускает WireMock сервер.
-     * Аннотация @BeforeAll гарантирует выполнение перед всеми тестовыми методами.
-     */
+    private static final boolean USE_SELENOID = System.getProperty("remote.webdriver.url") != null;
+    private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8080");
+    private static final String BANK_APP_URL = System.getProperty("bankAppUrl", "http://localhost:3000");
+
     @BeforeAll
     public static void setupAll() {
-        // ===== КОНФИГУРАЦИЯ SELENIDE (UI ТЕСТИРОВАНИЕ) =====
-        Configuration.browser = "chrome"; // Используем браузер Chrome для тестов
-        Configuration.browserSize = "1920x1080"; // Размер окна браузера
-        Configuration.timeout = 10000; // Таймаут ожидания элементов (10 секунд)
-        Configuration.pageLoadTimeout = 20000; // Таймаут загрузки страницы (20 секунд)
-        Configuration.screenshots = true; // Включение автоматических скриншотов при падении тестов
-        Configuration.savePageSource = false; // Не сохранять исходный код страницы при падении
-        Configuration.baseUrl = "http://localhost:8080"; // Базовый URL для всех тестов
-        Configuration.headless = false; // При true браузер не будет виден, но тесты будут работать
+        System.out.println("🎯 Initializing test environment...");
+        System.out.println("📍 Base URL: " + BASE_URL);
+        System.out.println("🏦 Bank App URL: " + BANK_APP_URL);
+        System.out.println("🌐 Selenoid mode: " + (USE_SELENOID ? "ENABLED" : "DISABLED"));
 
-        // Отключаем предупреждения о паролях и другие уведомления
-        Configuration.browserCapabilities = new ChromeOptions()
-                .addArguments("--disable-features=PasswordLeakDetection")
-                .addArguments("--disable-password-manager-reauthentication")
-                .addArguments("--disable-save-password-bubble")
-                .addArguments("--disable-autofill-keyboard-accessory-view")
-                .addArguments("--disable-infobars")
-                .addArguments("--disable-notifications");
+        configureSelenide();
+        configureRestAssured();
 
-        // Подключаем Allure listener для красивого логгирования действий Selenide в отчетах
-        SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
-                .screenshots(true) // Делать скриншоты для Allure отчетов
-                .savePageSource(false) // Не сохранять исходный код страницы
-        );
-
-        // ===== КОНФИГУРАЦИЯ REST ASSURED (API ТЕСТИРОВАНИЕ) =====
-        RestAssured.baseURI = "http://localhost:8080"; // Базовый URL для API запросов
-        // Добавляем фильтры для логгирования всех API запросов и ответов
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
-
-        // ЗАПУСКАЕМ WIREMOCK СЕРВЕР ДЛЯ ЭМУЛЯЦИИ ТЕСТОВОГО ПРИЛОЖЕНИЯ
-        BankAppMock.start();
+        if (!USE_SELENOID) {
+            BankAppMock.start();
+        }
     }
 
-    /**
-     * Метод выполняемый перед каждым тестом.
-     * Открывает базовую страницу для инициализации WebDriver.
-     * Selenide автоматически создает драйвер при первом вызове open().
-     * Аннотация @BeforeEach гарантирует выполнение перед каждым тестовым методом.
-     */
+    private static void configureSelenide() {
+        // Базовые настройки
+        Configuration.browserSize = "1920x1080";
+        Configuration.timeout = 10000;
+        Configuration.pageLoadTimeout = 30000;
+        Configuration.screenshots = true;
+        Configuration.savePageSource = false;
+        Configuration.baseUrl = BASE_URL;
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-extensions");
+        options.addArguments("--disable-infobars");
+        options.addArguments("--disable-notifications");
+        options.addArguments("--window-size=1920,1080");
+        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+
+        if (USE_SELENOID) {
+            // Настройки для Selenoid - минимальные
+            Configuration.remote = System.getProperty("remote.webdriver.url");
+            Configuration.browser = "chrome";
+            Configuration.browserCapabilities = options;
+
+            System.out.println("🚀 Selenoid configuration applied (minimal setup)");
+            System.out.println("📡 Remote URL: " + Configuration.remote);
+        } else {
+            // Локальные настройки
+            Configuration.browser = "chrome";
+            Configuration.headless = false;
+            Configuration.browserCapabilities = options;
+            System.out.println("🖥️ Local browser configuration applied");
+        }
+
+        // Allure интеграция
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
+                .screenshots(true)
+                .savePageSource(false));
+    }
+
+    private static void configureRestAssured() {
+        RestAssured.baseURI = BASE_URL;
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+    }
+
     @BeforeEach
     public void setup() {
-        // Открываем базовую страницу для инициализации драйвера
-        // Это гарантирует что WebDriver будет готов к использованию в тестах
-        open("/");
+        if (!USE_SELENOID) {
+            open("/");
+        }
     }
 
-    /**
-     * Метод очистки, выполняемый после каждого теста.
-     * Закрывает браузер и очищает ресурсы, выделенные для теста.
-     * Аннотация @AfterEach гарантирует выполнение после каждого тестового метода.
-     */
+    protected void openBankApp(String path) {
+        String url;
+        if (USE_SELENOID) {
+            // Для Selenoid используем host.docker.internal для доступа к локальной машине
+            url = BANK_APP_URL.replace("localhost", "host.docker.internal") + path;
+            System.out.println("🔧 Selenoid mode - Constructed URL: " + url);
+
+            // Проверка доступности URL
+            try {
+                java.net.URL testUrl = new java.net.URL(url);
+                System.out.println("🔍 URL protocol: " + testUrl.getProtocol());
+                System.out.println("🔍 URL host: " + testUrl.getHost());
+                System.out.println("🔍 URL port: " + testUrl.getPort());
+                System.out.println("🔍 URL path: " + testUrl.getPath());
+            } catch (Exception e) {
+                System.out.println("❌ URL construction error: " + e.getMessage());
+            }
+        } else {
+            // Для локального режима используем относительный путь
+            url = path.startsWith("http") ? path : BANK_APP_URL + path;
+            System.out.println("🔧 Local mode - URL: " + url);
+        }
+        System.out.println("🌐 Opening URL: " + url);
+        open(url);
+    }
+
     @AfterEach
     public void tearDown() {
-        // Закрываем браузер и освобождаем ресурсы
         closeWebDriver();
     }
 
-    /**
-     * Метод очистки, выполняемый один раз после всех тестов в классе.
-     * Останавливает WireMock сервер и освобождает сетевые ресурсы.
-     * Аннотация @AfterAll гарантирует выполнение после всех тестовых методов.
-     */
     @AfterAll
     public static void tearDownAll() {
-        // ОСТАНАВЛИВАЕМ WIREMOCK СЕРВЕР ПОСЛЕ ЗАВЕРШЕНИЯ ВСЕХ ТЕСТОВ
-        BankAppMock.stop();
+        if (!USE_SELENOID) {
+            BankAppMock.stop();
+        }
+    }
+
+    public static String getBaseUrl() {
+        return USE_SELENOID ? BANK_APP_URL : BASE_URL;
+    }
+
+    public static boolean isSelenoidMode() {
+        return USE_SELENOID;
     }
 }
