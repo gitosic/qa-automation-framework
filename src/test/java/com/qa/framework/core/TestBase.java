@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.util.Map;
+
 import static com.codeborne.selenide.Selenide.*;
 
 /**
@@ -20,9 +22,15 @@ import static com.codeborne.selenide.Selenide.*;
  */
 public abstract class TestBase {
 
-    private static final boolean USE_SELENOID = System.getProperty("remote.webdriver.url") != null;
+    // Исправленная логика определения режима
+    private static final boolean USE_SELENOID = isSelenoidEnabled();
     private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8080");
     private static final String BANK_APP_URL = System.getProperty("bankAppUrl", "http://localhost:3000");
+
+    private static boolean isSelenoidEnabled() {
+        String remoteUrl = System.getProperty("remote.webdriver.url");
+        return remoteUrl != null && !remoteUrl.trim().isEmpty();
+    }
 
     @BeforeAll
     public static void setupAll() {
@@ -30,6 +38,8 @@ public abstract class TestBase {
         System.out.println("📍 Base URL: " + BASE_URL);
         System.out.println("🏦 Bank App URL: " + BANK_APP_URL);
         System.out.println("🌐 Selenoid mode: " + (USE_SELENOID ? "ENABLED" : "DISABLED"));
+        System.out.println("🔧 Remote WebDriver URL: " +
+                (USE_SELENOID ? System.getProperty("remote.webdriver.url") : "Not set - using local browser"));
 
         configureSelenide();
         configureRestAssured();
@@ -59,13 +69,21 @@ public abstract class TestBase {
         options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
 
         if (USE_SELENOID) {
-            // Настройки для Selenoid - минимальные
-            Configuration.remote = System.getProperty("remote.webdriver.url");
+            // Настройки для Selenoid
+            String remoteUrl = System.getProperty("remote.webdriver.url");
+            Configuration.remote = remoteUrl;
             Configuration.browser = "chrome";
+
+            // Безопасная установка capabilities для Selenoid
+            options.setCapability("selenoid:options", Map.<String, Object>of(
+                    "enableVNC", true,
+                    "screenResolution", "1920x1080x24"
+            ));
+
             Configuration.browserCapabilities = options;
 
-            System.out.println("🚀 Selenoid configuration applied (minimal setup)");
-            System.out.println("📡 Remote URL: " + Configuration.remote);
+            System.out.println("🚀 Selenoid configuration applied");
+            System.out.println("📡 Remote URL: " + remoteUrl);
         } else {
             // Локальные настройки
             Configuration.browser = "chrome";
@@ -87,9 +105,8 @@ public abstract class TestBase {
 
     @BeforeEach
     public void setup() {
-        if (!USE_SELENOID) {
-            open("/");
-        }
+        // Базовая инициализация для каждого теста
+        System.out.println("🔧 Test setup completed");
     }
 
     protected void openBankApp(String path) {
@@ -121,13 +138,16 @@ public abstract class TestBase {
     @AfterEach
     public void tearDown() {
         closeWebDriver();
+        System.out.println("🧹 WebDriver closed");
     }
 
     @AfterAll
     public static void tearDownAll() {
         if (!USE_SELENOID) {
             BankAppMock.stop();
+            System.out.println("🛑 BankAppMock stopped");
         }
+        System.out.println("🎉 All tests completed");
     }
 
     public static String getBaseUrl() {
@@ -136,5 +156,9 @@ public abstract class TestBase {
 
     public static boolean isSelenoidMode() {
         return USE_SELENOID;
+    }
+
+    public static String getBankAppUrl() {
+        return BANK_APP_URL;
     }
 }
