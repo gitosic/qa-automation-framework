@@ -1,6 +1,7 @@
 package com.qa.framework.core;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import com.qa.framework.wiremock.BankAppMock;
 import io.qameta.allure.selenide.AllureSelenide;
@@ -12,20 +13,27 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.codeborne.selenide.Selenide.*;
 
 /**
  * Абстрактный базовый класс для всех тестовых классов в фреймворке.
+ * Поддерживает параллельное выполнение тестов через Selenoid.
  */
 public abstract class TestBase {
 
-    // Исправленная логика определения режима
     private static final boolean USE_SELENOID = isSelenoidEnabled();
     private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8080");
     private static final String BANK_APP_URL = System.getProperty("bankAppUrl", "http://localhost:3000");
+    private static final boolean IS_PARALLEL = Boolean.parseBoolean(System.getProperty("parallel.enabled", "false"));
+
+    // Хранилище для thread-local данных
+    private static final ThreadLocal<String> THREAD_INFO = new ThreadLocal<>();
+    private static final ConcurrentHashMap<String, String> SESSION_IDS = new ConcurrentHashMap<>();
 
     private static boolean isSelenoidEnabled() {
         String remoteUrl = System.getProperty("remote.webdriver.url");
@@ -38,6 +46,7 @@ public abstract class TestBase {
         System.out.println("📍 Base URL: " + BASE_URL);
         System.out.println("🏦 Bank App URL: " + BANK_APP_URL);
         System.out.println("🌐 Selenoid mode: " + (USE_SELENOID ? "ENABLED" : "DISABLED"));
+        System.out.println("🧵 Parallel execution: " + (IS_PARALLEL ? "ENABLED" : "DISABLED"));
         System.out.println("🔧 Remote WebDriver URL: " +
                 (USE_SELENOID ? System.getProperty("remote.webdriver.url") : "Not set - using local browser"));
 
@@ -58,6 +67,13 @@ public abstract class TestBase {
         Configuration.savePageSource = false;
         Configuration.baseUrl = BASE_URL;
 
+        // Настройки для параллельного выполнения
+        if (IS_PARALLEL) {
+            Configuration.holdBrowserOpen = false;
+            Configuration.reopenBrowserOnFail = true;
+            Configuration.browser = "chrome";
+        }
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
@@ -72,24 +88,28 @@ public abstract class TestBase {
             // Настройки для Selenoid
             String remoteUrl = System.getProperty("remote.webdriver.url");
             Configuration.remote = remoteUrl;
-            Configuration.browser = "chrome";
 
-            // Безопасная установка capabilities для Selenoid
+            // Уникальное имя сессии для каждого потока
+            String sessionName = "Session-" + System.currentTimeMillis() + "-Thread-" + Thread.currentThread().getId();
+
+            // Критически важно: устанавливаем уникальный sessionName в capabilities
             options.setCapability("selenoid:options", Map.<String, Object>of(
                     "enableVNC", true,
-                    "screenResolution", "1920x1080x24"
+                    "screenResolution", "1920x1080x24",
+                    "sessionTimeout", "10m",
+                    "sessionName", sessionName
             ));
 
             Configuration.browserCapabilities = options;
 
-            System.out.println("🚀 Selenoid configuration applied");
-            System.out.println("📡 Remote URL: " + remoteUrl);
+            System.out.println("🚀 Selenoid configuration applied for thread: " + Thread.currentThread().getId());
+            System.out.println("📡 Session Name: " + sessionName);
         } else {
             // Локальные настройки
             Configuration.browser = "chrome";
             Configuration.headless = false;
             Configuration.browserCapabilities = options;
-            System.out.println("🖥️ Local browser configuration applied");
+            System.out.println("🖥️ Local browser configuration applied for thread: " + Thread.currentThread().getId());
         }
 
         // Allure интеграция
@@ -105,40 +125,44 @@ public abstract class TestBase {
 
     @BeforeEach
     public void setup() {
-        // Базовая инициализация для каждого теста
-        System.out.println("🔧 Test setup completed");
+        String threadInfo = "Thread-" + Thread.currentThread().getId();
+        THREAD_INFO.set(threadInfo);
+
+        System.out.println("🔧 Test setup for " + threadInfo);
+        System.out.println("📊 Active threads: " + SESSION_IDS.size());
     }
 
     protected void openBankApp(String path) {
         String url;
         if (USE_SELENOID) {
-            // Для Selenoid используем host.docker.internal для доступа к локальной машине
             url = BANK_APP_URL.replace("localhost", "host.docker.internal") + path;
-            System.out.println("🔧 Selenoid mode - Constructed URL: " + url);
-
-            // Проверка доступности URL
-            try {
-                java.net.URL testUrl = new java.net.URL(url);
-                System.out.println("🔍 URL protocol: " + testUrl.getProtocol());
-                System.out.println("🔍 URL host: " + testUrl.getHost());
-                System.out.println("🔍 URL port: " + testUrl.getPort());
-                System.out.println("🔍 URL path: " + testUrl.getPath());
-            } catch (Exception e) {
-                System.out.println("❌ URL construction error: " + e.getMessage());
-            }
         } else {
-            // Для локального режима используем относительный путь
             url = path.startsWith("http") ? path : BANK_APP_URL + path;
-            System.out.println("🔧 Local mode - URL: " + url);
         }
-        System.out.println("🌐 Opening URL: " + url);
+
+        System.out.println("🌐 [" + THREAD_INFO.get() + "] Opening URL: " + url);
         open(url);
     }
 
     @AfterEach
     public void tearDown() {
+        String threadInfo = THREAD_INFO.get();
+
+        // Логируем ID сессии после завершения теста
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            try {
+                RemoteWebDriver driver = (RemoteWebDriver) WebDriverRunner.getWebDriver();
+                String sessionId = driver.getSessionId().toString();
+                SESSION_IDS.put(threadInfo, sessionId);
+                System.out.println("🔍 [" + threadInfo + "] Session ID: " + sessionId);
+            } catch (Exception e) {
+                System.out.println("⚠️ [" + threadInfo + "] Cannot get session info: " + e.getMessage());
+            }
+        }
+
         closeWebDriver();
-        System.out.println("🧹 WebDriver closed");
+        System.out.println("🧹 [" + threadInfo + "] WebDriver closed");
+        System.out.println("📊 Remaining active threads: " + SESSION_IDS.size());
     }
 
     @AfterAll
@@ -147,7 +171,21 @@ public abstract class TestBase {
             BankAppMock.stop();
             System.out.println("🛑 BankAppMock stopped");
         }
-        System.out.println("🎉 All tests completed");
+
+        System.out.println("\n===== FINAL SESSION REPORT =====");
+        SESSION_IDS.forEach((thread, session) ->
+                System.out.println("Thread: " + thread + " | Session: " + session));
+
+        System.out.println("🎉 All tests completed. Total threads executed: " + SESSION_IDS.size());
+    }
+
+    // Вспомогательные методы
+    public static boolean isParallelExecution() {
+        return IS_PARALLEL;
+    }
+
+    protected String getThreadInfo() {
+        return THREAD_INFO.get();
     }
 
     public static String getBaseUrl() {

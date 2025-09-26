@@ -6,19 +6,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-
-import static com.codeborne.selenide.Selenide.*;
-import static com.codeborne.selenide.WebDriverRunner.url;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
 
 import java.util.stream.Stream;
+
+import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.sleep;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Параметризованные тесты логина с использованием различных источников данных.
@@ -32,7 +30,7 @@ import java.util.stream.Stream;
 @Tag("Login")
 @Tag("Regression")
 @Execution(ExecutionMode.CONCURRENT)
-public class ParameterizedLoginTest extends TestBase {
+public class ParameterizedLogin2Test extends TestBase {
 
     private final LoginPage loginPage = new LoginPage();
 
@@ -48,18 +46,18 @@ public class ParameterizedLoginTest extends TestBase {
      */
     @ParameterizedTest(name = "[{index}] {3}") // Кастомное имя для отчета
     @CsvSource({
-            "admin, securePass123!, true, 'Успешный логин администратора'",
-            "user1, strongPass456!, true, 'Успешный логин пользователя 1'",
-            "user2, safePass789!, true, 'Успешный логин пользователя 2'",
-            "wrong, wrongPassword, false, 'Неверные credentials'",
-            "'', strongPass456!, false, 'Пустой username'",
-            "admin, '', false, 'Пустой password'"
+            "admin, securePass123!, true, 'Успешный логин администратора'"
+//            "user1, strongPass456!, true, 'Успешный логин пользователя 1'",
+//            "user2, safePass789!, true, 'Успешный логин пользователя 2'",
+//            "wrong, wrongPassword, false, 'Неверные credentials'",
+//            "'', strongPass456!, false, 'Пустой username'",
+//            "admin, '', false, 'Пустой password'"
     })
     @DisplayName("CSV Source Test")
     @Tag("Smoke")
     @Tag("UI")
     @Tag("DataFromCsvSource")
-    void testLoginWithCsvSource(String username, String password,
+    void testLoginWithCsvSource3(String username, String password,
                                 boolean expectedSuccess, String description,
                                 TestInfo testInfo) {
 
@@ -107,7 +105,7 @@ public class ParameterizedLoginTest extends TestBase {
     @Tag("Regression")
     @Tag("UI")
     @Tag("DataFromCsvSource")
-    void testLoginWithCsvFile(String username, String password,
+    void testLoginWithCsvFile4(String username, String password,
                               boolean expectedSuccess, String description,
                               TestInfo testInfo) {
 

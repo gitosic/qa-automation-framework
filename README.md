@@ -58,3 +58,13 @@ mvn clean test -DincludeTags=DataFromCsvSource -DbankAppUrl=http://localhost:300
 
 Selenoid режим (браузер в Docker по ссылке http://localhost:8090/#/):
 mvn clean test -DincludeTags=DataFromCsvSource -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000
+
+
+Запуск в несколько потоков через Selenoid режим (браузер в Docker по ссылке http://localhost:8090/#/):
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource,UI -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+
+Запуск в несколько потоков через локальный режим (браузер на Mac):
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+
+                    <!--junit.jupiter.execution.parallel.config.strategy = dynamic он сам определяет возможности сервера -->
+                    <!-- добавляем параметр "junit.jupiter.execution.parallel.config.fixed.parallelism = 4", чтобы самостоятельно управлять количеством потоков -->

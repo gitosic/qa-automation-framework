@@ -2,168 +2,152 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <!-- Координаты нашего фреймворка -->
-  <groupId>com.qa</groupId>
-  <artifactId>qa-automation-framework</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+    <groupId>com.qa</groupId>
+    <artifactId>qa-automation-framework</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-  <name>QA Automation Framework</name>
-  <description>A modern UI and API test automation framework</description>
+    <name>QA Automation Framework</name>
+    <description>A modern UI and API test automation framework</description>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source> <!-- Используем Java 17 -->
-    <maven.compiler.target>17</maven.compiler.target>
-    <junit.version>5.10.0</junit.version>
-    <selenide.version>7.0.4</selenide.version>
-    <rest-assured.version>5.3.2</rest-assured.version>
-    <jackson.version>2.15.3</jackson.version>
-    <logback.version>1.4.11</logback.version>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <junit.version>5.10.0</junit.version>
+        <selenide.version>7.0.4</selenide.version>
+        <rest-assured.version>5.3.2</rest-assured.version>
+        <jackson.version>2.15.3</jackson.version>
+        <logback.version>1.4.11</logback.version>
+    </properties>
 
-  <dependencies>
-    <!-- ЯДРО ТЕСТИРОВАНИЯ -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <!-- UI ТЕСТИРОВАНИЕ -->
-    <!-- Selenide: мощный фреймворк для UI тестов на основе Selenium -->
-    <dependency>
-      <groupId>com.codeborne</groupId>
-      <artifactId>selenide</artifactId>
-      <version>${selenide.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>selenide</artifactId>
+            <version>${selenide.version}</version>
+        </dependency>
 
-    <!-- API ТЕСТИРОВАНИЕ -->
-    <!-- RestAssured: библиотека для тестирования REST API -->
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <version>${rest-assured.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>json-schema-validator</artifactId>
-      <version>${rest-assured.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <!-- РАБОТА С ДАННЫМИ -->
-    <!-- Jackson: сериализация и десериализация JSON (для API моделей) -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
-    <!-- ЛОГИРОВАНИЕ -->
-    <!-- Logback: современная и производительная система логирования -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
 
-    <!-- ОТЧЕТНОСТЬ И ЛОГГИРОВАНИЕ -->
-    <!-- Allure: фреймворк для построения детальных отчетов -->
-    <dependency>
-      <groupId>io.qameta.allure</groupId>
-      <artifactId>allure-selenide</artifactId>
-      <version>2.25.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.qameta.allure</groupId>
-      <artifactId>allure-rest-assured</artifactId>
-      <version>2.25.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.qameta.allure</groupId>
-      <artifactId>allure-junit5</artifactId>
-      <version>2.25.0</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-selenide</artifactId>
+            <version>2.25.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
+            <version>2.25.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.25.0</version>
+            <scope>test</scope>
+        </dependency>
 
-    <!-- Мокирование API через WireMock -->
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock</artifactId>
-      <version>3.0.1</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.0.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-  </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
 
-  <build>
-    <plugins>
-      <!-- Компилятор для Java 17 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <groups>${includeTags}</groups>
+                    <excludedGroups>${excludeTags}</excludedGroups>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.execution.parallel.enabled = true
+                            junit.jupiter.execution.parallel.config.strategy = fixed
+                            junit.jupiter.execution.parallel.config.fixed.parallelism = 2
+                            junit.jupiter.execution.parallel.mode.default = concurrent
+                            junit.jupiter.extensions.autodetection.enabled = true
+                        </configurationParameters>
+                    </properties>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.1.2</version>
-        <configuration>
-          <!-- Фильтрация по тегам -->
-          <groups>${includeTags}</groups>
-          <excludedGroups>${excludeTags}</excludedGroups>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
+                    </argLine>
 
-          <properties>
-            <configurationParameters>
-              junit.jupiter.extensions.autodetection.enabled=true
-            </configurationParameters>
-          </properties>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
+                        <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
+                        <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
+                        <parallel.enabled>true</parallel.enabled>
+                    </systemPropertyVariables>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>1.9.21</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 
-          <!-- AspectJ для Allure -->
-          <argLine>
-            -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
-          </argLine>
-
-          <systemPropertyVariables>
-            <!-- Allure -->
-            <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
-            <!-- Selenoid конфигурация -->
-            <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
-            <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
-            <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
-          </systemPropertyVariables>
-        </configuration>
-        <dependencies>
-          <!-- AspectJ dependency -->
-          <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>1.9.21</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>io.qameta.allure</groupId>
-        <artifactId>allure-maven</artifactId>
-        <version>2.12.0</version>
-        <configuration>
-          <reportVersion>2.25.0</reportVersion>
-          <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>2.25.0</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
