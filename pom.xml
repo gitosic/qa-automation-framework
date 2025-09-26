@@ -96,8 +96,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>17</release> <!-- ИЗМЕНЕНО: вместо source/target -->
                 </configuration>
             </plugin>
 
@@ -108,15 +107,6 @@
                 <configuration>
                     <groups>${includeTags}</groups>
                     <excludedGroups>${excludeTags}</excludedGroups>
-                    <properties>
-                        <configurationParameters>
-                            junit.jupiter.execution.parallel.enabled = true
-                            junit.jupiter.execution.parallel.config.strategy = fixed
-                            junit.jupiter.execution.parallel.config.fixed.parallelism = 2
-                            junit.jupiter.execution.parallel.mode.default = concurrent
-                            junit.jupiter.extensions.autodetection.enabled = true
-                        </configurationParameters>
-                    </properties>
 
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
@@ -127,7 +117,6 @@
                         <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
                         <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
                         <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
-                        <parallel.enabled>true</parallel.enabled>
                     </systemPropertyVariables>
                 </configuration>
                 <dependencies>

@@ -17,6 +17,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -30,6 +31,9 @@ public abstract class TestBase {
     private static final String BASE_URL = System.getProperty("baseUrl", "http://localhost:8080");
     private static final String BANK_APP_URL = System.getProperty("bankAppUrl", "http://localhost:3000");
     private static final boolean IS_PARALLEL = Boolean.parseBoolean(System.getProperty("parallel.enabled", "false"));
+
+    // Семафор для ограничения одновременных тестов до 2
+    private static final Semaphore PARALLEL_SEMAPHORE = new Semaphore(3, true);
 
     // Хранилище для thread-local данных
     private static final ThreadLocal<String> THREAD_INFO = new ThreadLocal<>();
@@ -49,6 +53,7 @@ public abstract class TestBase {
         System.out.println("🧵 Parallel execution: " + (IS_PARALLEL ? "ENABLED" : "DISABLED"));
         System.out.println("🔧 Remote WebDriver URL: " +
                 (USE_SELENOID ? System.getProperty("remote.webdriver.url") : "Not set - using local browser"));
+        System.out.println("📊 Max parallel tests: " + (IS_PARALLEL ? "2" : "1"));
 
         configureSelenide();
         configureRestAssured();
@@ -67,12 +72,12 @@ public abstract class TestBase {
         Configuration.savePageSource = false;
         Configuration.baseUrl = BASE_URL;
 
-        // Настройки для параллельного выполнения
-        if (IS_PARALLEL) {
-            Configuration.holdBrowserOpen = false;
-            Configuration.reopenBrowserOnFail = true;
-            Configuration.browser = "chrome";
-        }
+        // Важные настройки для предотвращения конфликтов параллелизма
+        Configuration.holdBrowserOpen = false;
+        Configuration.reopenBrowserOnFail = false;
+
+        // Настройки для производительности
+        Configuration.fastSetValue = true;
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--no-sandbox");
@@ -88,11 +93,11 @@ public abstract class TestBase {
             // Настройки для Selenoid
             String remoteUrl = System.getProperty("remote.webdriver.url");
             Configuration.remote = remoteUrl;
+            Configuration.browser = "chrome";
 
             // Уникальное имя сессии для каждого потока
             String sessionName = "Session-" + System.currentTimeMillis() + "-Thread-" + Thread.currentThread().getId();
 
-            // Критически важно: устанавливаем уникальный sessionName в capabilities
             options.setCapability("selenoid:options", Map.<String, Object>of(
                     "enableVNC", true,
                     "screenResolution", "1920x1080x24",
@@ -101,15 +106,13 @@ public abstract class TestBase {
             ));
 
             Configuration.browserCapabilities = options;
-
-            System.out.println("🚀 Selenoid configuration applied for thread: " + Thread.currentThread().getId());
-            System.out.println("📡 Session Name: " + sessionName);
+            System.out.println("🚀 Selenoid configuration applied");
         } else {
             // Локальные настройки
             Configuration.browser = "chrome";
             Configuration.headless = false;
             Configuration.browserCapabilities = options;
-            System.out.println("🖥️ Local browser configuration applied for thread: " + Thread.currentThread().getId());
+            System.out.println("🖥️ Local browser configuration applied");
         }
 
         // Allure интеграция
@@ -124,9 +127,15 @@ public abstract class TestBase {
     }
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws InterruptedException {
         String threadInfo = "Thread-" + Thread.currentThread().getId();
         THREAD_INFO.set(threadInfo);
+
+        // Ограничиваем количество одновременных тестов
+        if (IS_PARALLEL) {
+            PARALLEL_SEMAPHORE.acquire();
+            System.out.println("🔒 [" + threadInfo + "] Acquired semaphore. Available permits: " + PARALLEL_SEMAPHORE.availablePermits());
+        }
 
         System.out.println("🔧 Test setup for " + threadInfo);
         System.out.println("📊 Active threads: " + SESSION_IDS.size());
@@ -161,6 +170,13 @@ public abstract class TestBase {
         }
 
         closeWebDriver();
+
+        // Освобождаем семафор после завершения теста
+        if (IS_PARALLEL) {
+            PARALLEL_SEMAPHORE.release();
+            System.out.println("🔓 [" + threadInfo + "] Released semaphore. Available permits: " + PARALLEL_SEMAPHORE.availablePermits());
+        }
+
         System.out.println("🧹 [" + threadInfo + "] WebDriver closed");
         System.out.println("📊 Remaining active threads: " + SESSION_IDS.size());
     }
@@ -177,6 +193,7 @@ public abstract class TestBase {
                 System.out.println("Thread: " + thread + " | Session: " + session));
 
         System.out.println("🎉 All tests completed. Total threads executed: " + SESSION_IDS.size());
+        System.out.println("🔚 Final semaphore permits: " + PARALLEL_SEMAPHORE.availablePermits());
     }
 
     // Вспомогательные методы

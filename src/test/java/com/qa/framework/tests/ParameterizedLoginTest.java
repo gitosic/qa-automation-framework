@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 @Tag("Parameterized")
 @Tag("Login")
 @Tag("Regression")
-@Execution(ExecutionMode.CONCURRENT)
+//@Execution(ExecutionMode.CONCURRENT)
 public class ParameterizedLoginTest extends TestBase {
 
     private final LoginPage loginPage = new LoginPage();

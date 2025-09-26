@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("Parameterized")
 @Tag("Login")
 @Tag("Regression")
-@Execution(ExecutionMode.CONCURRENT)
+//@Execution(ExecutionMode.CONCURRENT)
 public class ParameterizedLogin2Test extends TestBase {
 
     private final LoginPage loginPage = new LoginPage();
