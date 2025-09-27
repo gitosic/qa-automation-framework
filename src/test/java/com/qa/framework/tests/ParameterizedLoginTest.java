@@ -6,19 +6,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+
+import java.util.stream.Stream;
 
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.stream.Stream;
 
 /**
  * Параметризованные тесты логина с использованием различных источников данных.
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 @Tag("Parameterized")
 @Tag("Login")
 @Tag("Regression")
-//@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT) // Ключевое активация параллелизма
 public class ParameterizedLoginTest extends TestBase {
 
     private final LoginPage loginPage = new LoginPage();
@@ -64,9 +64,8 @@ public class ParameterizedLoginTest extends TestBase {
                                 TestInfo testInfo) {
 
         System.out.println("🚀 Запуск теста: " + description);
-
         // Используйте openBankApp вместо прямого open
-        openBankApp("/login");  // ← Это ключевое изменение!
+        openBankApp("/login");
         loginPage.waitForPageLoad();
         sleep(10000);
 
@@ -112,9 +111,8 @@ public class ParameterizedLoginTest extends TestBase {
                               TestInfo testInfo) {
 
         System.out.println("🚀 Запуск теста: " + description);
-
         // Используйте openBankApp вместо прямого open
-        openBankApp("/login");  // ← Это ключевое изменение!
+        openBankApp("/login");
         loginPage.waitForPageLoad();
         sleep(10000);
 
@@ -140,14 +138,8 @@ public class ParameterizedLoginTest extends TestBase {
         }
     }
 
-    /**
-     * Параметризованный тест с использованием ValueSource для проверки валидации username.
-     * Тестирует только поле username с разными значениями.
-     *
-     * @param username тестовое значение для поля username
-     */
     @ParameterizedTest
-    @ValueSource(strings = {""}) // Можно через запятую
+    @ValueSource(strings = {""})
     @DisplayName("Username validation test: {0}")
     @Tag("Validation")
     void testUsernameValidation(String username) {
@@ -157,7 +149,6 @@ public class ParameterizedLoginTest extends TestBase {
         loginPage.enterUsername(username)
                 .clickLogin();
 
-        // Проверяем валидацию поля
         if (username.isEmpty() || username.length() < 3) {
             assertTrue(loginPage.isUsernameFieldInvalid(),
                     "Поле username должно быть невалидным для: " + username);
@@ -167,16 +158,8 @@ public class ParameterizedLoginTest extends TestBase {
         }
     }
 
-    /**
-     * Параметризованный тест с использованием MethodSource.
-     * Данные генерируются методом provideEdgeCaseData().
-     *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
-     * @param scenario описание сценария
-     */
     @ParameterizedTest
-    @MethodSource("provideEdgeCaseData") //
+    @MethodSource("provideEdgeCaseData")
     @DisplayName("Edge case test: {2}")
     @Tag("EdgeCase")
     @Tag("Security")
@@ -194,18 +177,11 @@ public class ParameterizedLoginTest extends TestBase {
             Thread.currentThread().interrupt();
         }
 
-        // Для edge cases ожидаем неуспешный логин
         assertTrue(loginPage.isErrorMessageDisplayed() ||
                         url().contains("/login"),
                 "Edge case должен завершиться ошибкой: " + scenario);
     }
 
-    /**
-     * Метод-поставщик данных для параметризованного теста.
-     * Генерирует данные для тестирования edge cases.
-     *
-     * @return поток аргументов для теста
-     */
     private static Stream<Arguments> provideEdgeCaseData() {
         return Stream.of(
                 Arguments.of("admin", "securePass123!".toUpperCase(), "Uppercase password"),
@@ -218,12 +194,6 @@ public class ParameterizedLoginTest extends TestBase {
         );
     }
 
-    /**
-     * Параметризованный тест с использованием Null и Empty Source.
-     * Тестирует обработку пустых и null значений.
-     *
-     * @param username имя пользователя (может быть null или empty)
-     */
     @ParameterizedTest
     @org.junit.jupiter.params.provider.NullSource
     @org.junit.jupiter.params.provider.EmptySource

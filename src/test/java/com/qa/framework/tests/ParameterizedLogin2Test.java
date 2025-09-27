@@ -29,42 +29,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("Parameterized")
 @Tag("Login")
 @Tag("Regression")
-//@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT) // Ключевое активация параллелизма
 public class ParameterizedLogin2Test extends TestBase {
 
     private final LoginPage loginPage = new LoginPage();
 
-    /**
-     * Параметризованный тест с использованием CSV источника данных.
-     * Демонстрирует различные сценарии логина.
-     *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
-     * @param expectedSuccess ожидаемый результат (true/false)
-     * @param description описание тестового сценария
-     * @param testInfo информация о тесте для получения метаданных
-     */
-    @ParameterizedTest(name = "[{index}] {3}") // Кастомное имя для отчета
+    @ParameterizedTest(name = "[{index}] {3}")
     @CsvSource({
-            "admin, securePass123!, true, 'Успешный логин администратора'"
-//            "user1, strongPass456!, true, 'Успешный логин пользователя 1'",
-//            "user2, safePass789!, true, 'Успешный логин пользователя 2'",
-//            "wrong, wrongPassword, false, 'Неверные credentials'",
-//            "'', strongPass456!, false, 'Пустой username'",
-//            "admin, '', false, 'Пустой password'"
+            "admin, securePass123!, true, 'Успешный логин администратора'",
+            "user1, strongPass456!, true, 'Успешный логин пользователя 1'",
+            "user2, safePass789!, true, 'Успешный логин пользователя 2'",
+            "wrong, wrongPassword, false, 'Неверные credentials'",
+            "'', strongPass456!, false, 'Пустой username'",
+            "admin, '', false, 'Пустой password'"
     })
     @DisplayName("CSV Source Test")
     @Tag("Smoke")
     @Tag("UI")
     @Tag("DataFromCsvSource")
-    void testLoginWithCsvSource3(String username, String password,
+    void testLoginWithCsvSource(String username, String password,
                                 boolean expectedSuccess, String description,
                                 TestInfo testInfo) {
 
         System.out.println("🚀 Запуск теста: " + description);
 
-        // Используйте openBankApp вместо прямого open
-        openBankApp("/login");  // ← Это ключевое изменение!
+        openBankApp("/login");
         loginPage.waitForPageLoad();
         sleep(10000);
 
@@ -90,29 +79,19 @@ public class ParameterizedLogin2Test extends TestBase {
         }
     }
 
-    /**
-     * Параметризованный тест с использованием CSV файла как источника данных.
-     * Данные читаются из внешнего файла.
-     *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
-     * @param expectedSuccess ожидаемый результат (true/false)
-     * @param description описание тестового сценария
-     */
-    @ParameterizedTest(name = "[{index}] {3}") // Используем только description
+    @ParameterizedTest(name = "[{index}] {3}")
     @CsvFileSource(resources = "/test-data/login-data.csv", numLinesToSkip = 1)
     @DisplayName("CSV File Test")
     @Tag("Regression")
     @Tag("UI")
     @Tag("DataFromCsvSource")
-    void testLoginWithCsvFile4(String username, String password,
+    void testLoginWithCsvFile(String username, String password,
                               boolean expectedSuccess, String description,
                               TestInfo testInfo) {
 
         System.out.println("🚀 Запуск теста: " + description);
 
-        // Используйте openBankApp вместо прямого open
-        openBankApp("/login");  // ← Это ключевое изменение!
+        openBankApp("/login");
         loginPage.waitForPageLoad();
         sleep(10000);
 
@@ -138,14 +117,8 @@ public class ParameterizedLogin2Test extends TestBase {
         }
     }
 
-    /**
-     * Параметризованный тест с использованием ValueSource для проверки валидации username.
-     * Тестирует только поле username с разными значениями.
-     *
-     * @param username тестовое значение для поля username
-     */
     @ParameterizedTest
-    @ValueSource(strings = {""}) // Можно через запятую
+    @ValueSource(strings = {""})
     @DisplayName("Username validation test: {0}")
     @Tag("Validation")
     void testUsernameValidation(String username) {
@@ -155,7 +128,6 @@ public class ParameterizedLogin2Test extends TestBase {
         loginPage.enterUsername(username)
                 .clickLogin();
 
-        // Проверяем валидацию поля
         if (username.isEmpty() || username.length() < 3) {
             assertTrue(loginPage.isUsernameFieldInvalid(),
                     "Поле username должно быть невалидным для: " + username);
@@ -165,16 +137,8 @@ public class ParameterizedLogin2Test extends TestBase {
         }
     }
 
-    /**
-     * Параметризованный тест с использованием MethodSource.
-     * Данные генерируются методом provideEdgeCaseData().
-     *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
-     * @param scenario описание сценария
-     */
     @ParameterizedTest
-    @MethodSource("provideEdgeCaseData") //
+    @MethodSource("provideEdgeCaseData")
     @DisplayName("Edge case test: {2}")
     @Tag("EdgeCase")
     @Tag("Security")
@@ -192,18 +156,11 @@ public class ParameterizedLogin2Test extends TestBase {
             Thread.currentThread().interrupt();
         }
 
-        // Для edge cases ожидаем неуспешный логин
         assertTrue(loginPage.isErrorMessageDisplayed() ||
                         url().contains("/login"),
                 "Edge case должен завершиться ошибкой: " + scenario);
     }
 
-    /**
-     * Метод-поставщик данных для параметризованного теста.
-     * Генерирует данные для тестирования edge cases.
-     *
-     * @return поток аргументов для теста
-     */
     private static Stream<Arguments> provideEdgeCaseData() {
         return Stream.of(
                 Arguments.of("admin", "securePass123!".toUpperCase(), "Uppercase password"),
@@ -216,12 +173,6 @@ public class ParameterizedLogin2Test extends TestBase {
         );
     }
 
-    /**
-     * Параметризованный тест с использованием Null и Empty Source.
-     * Тестирует обработку пустых и null значений.
-     *
-     * @param username имя пользователя (может быть null или empty)
-     */
     @ParameterizedTest
     @org.junit.jupiter.params.provider.NullSource
     @org.junit.jupiter.params.provider.EmptySource

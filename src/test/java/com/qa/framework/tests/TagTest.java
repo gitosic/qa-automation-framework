@@ -9,15 +9,41 @@ public class TagTest {
 
     @Test
     @Tag("SomeTag1")
-    void testWithTag1() {
+    void testWithTag1() throws InterruptedException {
+        Thread.sleep(2000);
         System.out.println("✅ Test with SomeTag executed 1");
         assertTrue(true);
     }
 
     @Test
     @Tag("SomeTag1")
-    void testWithOtherTag2() {
-        System.out.println("✅ Test with OtherTag executed 2");
+    void testWithTag2() throws InterruptedException {
+        Thread.sleep(2000);
+        System.out.println("✅ Test with SomeTag executed 1");
+        assertTrue(true);
+    }
+
+    @Test
+    @Tag("SomeTag1")
+    void testWithTag3() throws InterruptedException {
+        Thread.sleep(2000);
+        System.out.println("✅ Test with SomeTag executed 1");
+        assertTrue(true);
+    }
+
+    @Test
+    @Tag("SomeTag1")
+    void testWithTag4() throws InterruptedException {
+        Thread.sleep(2000);
+        System.out.println("✅ Test with SomeTag executed 1");
+        assertTrue(true);
+    }
+
+    @Test
+    @Tag("SomeTag1")
+    void testWithTag5() throws InterruptedException {
+        Thread.sleep(2000);
+        System.out.println("✅ Test with SomeTag executed 1");
         assertTrue(true);
     }
 

@@ -61,10 +61,13 @@ mvn clean test -DincludeTags=DataFromCsvSource -Dremote.webdriver.url=http://loc
 
 
 Запуск в несколько потоков через Selenoid режим (браузер в Docker по ссылке http://localhost:8090/#/):
-vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource,UI -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=SomeTag1 -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+
 
 Запуск в несколько потоков через локальный режим (браузер на Mac):
-vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=SomeTag1 -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
 
-                    <!--junit.jupiter.execution.parallel.config.strategy = dynamic он сам определяет возможности сервера -->
-                    <!-- добавляем параметр "junit.jupiter.execution.parallel.config.fixed.parallelism = 4", чтобы самостоятельно управлять количеством потоков -->
+Что нужно настроить:
+В pom.xml <parallel.tests>2</parallel.tests>
+В junit-platform.properties junit.jupiter.execution.parallel.config.fixed.max-pool-size=2
+В junit-platform.properties junit.jupiter.execution.parallel.config.fixed.parallelism=2
