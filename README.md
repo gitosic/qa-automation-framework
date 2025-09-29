@@ -61,11 +61,14 @@ mvn clean test -DincludeTags=DataFromCsvSource -Dremote.webdriver.url=http://loc
 
 
 Запуск в несколько потоков через Selenoid режим (браузер в Docker по ссылке http://localhost:8090/#/):
-vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=SomeTag1 -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
-
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
 
 Запуск в несколько потоков через локальный режим (браузер на Mac):
-vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=SomeTag1 -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn clean test -DincludeTags=DataFromCsvSource -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true
+
+Формирование алюр отчета:
+vitaliy@MacBook-Pro-Vitalii qa-automation-framework % mvn allure:serve
+
 
 Что нужно настроить:
 В pom.xml <parallel.tests>2</parallel.tests>

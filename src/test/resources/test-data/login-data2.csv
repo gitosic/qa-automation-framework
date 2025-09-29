@@ -1,9 +1,0 @@
-username,password,expectedSuccess,description
-admin,securePass123!,true,Успешный логин администратора
-user1,strongPass456!,true,Успешный логин пользователя 1
-user2,safePass789!,true,Успешный логин пользователя 2
-wrong,wrongPassword,false,Неверные credentials
-,strongPass456!,false,Пустой username
-admin,,false,Пустой password
-test',securePass123!,false,SQL injection attempt
-admin,password123,false,Неверный пароль

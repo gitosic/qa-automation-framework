@@ -21,7 +21,7 @@
         <rest-assured.version>5.3.2</rest-assured.version>
         <jackson.version>2.15.3</jackson.version>
         <logback.version>1.4.11</logback.version>
-        <parallel.tests>2</parallel.tests>
+        <parallel.tests>4</parallel.tests>
     </properties>
 
     <dependencies>
