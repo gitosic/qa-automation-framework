@@ -1,0 +1,7 @@
+# JUnit 5 Parallel Execution Configuration
+junit.jupiter.execution.parallel.enabled=true//Включает параллельное выполнение тестов
+junit.jupiter.execution.parallel.config.strategy=fixed//фиксированное количество потоков//dynamic - на основе количества ядер процессора//custom - пользовательская реализация
+junit.jupiter.execution.parallel.config.fixed.parallelism=6//Количество одновременных потоков для выполнения тестов
+junit.jupiter.execution.parallel.mode.default=concurrent//concurrent - тесты могут выполняться параллельно//same_thread - тесты в одном потоке
+junit.jupiter.execution.parallel.mode.classes.default=concurrent//concurrent - разные тестовые классы выполняются параллельно
+junit.jupiter.execution.parallel.config.fixed.max-pool-size=6//Ограничивает максимальное количество создаваемых потоков

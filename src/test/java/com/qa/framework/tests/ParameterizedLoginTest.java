@@ -2,6 +2,8 @@ package com.qa.framework.tests;
 
 import com.qa.framework.core.TestBase;
 import com.qa.framework.pages.LoginPage;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInfo;
@@ -28,23 +30,22 @@ import static org.junit.jupiter.api.Assertions.*;
  * @version 1.0
  */
 @DisplayName("🔐 Параметризованные тесты логина")
+@Tag("all")
 @Tag("Parameterized")
 @Tag("Login")
 @Tag("Regression")
 @Execution(ExecutionMode.CONCURRENT) // Ключевое активация параллелизма
 public class ParameterizedLoginTest extends TestBase {
 
-    private final LoginPage loginPage = new LoginPage();
-
     /**
      * Параметризованный тест с использованием CSV источника данных.
      * Демонстрирует различные сценарии логина.
      *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
+     * @param username        имя пользователя для теста
+     * @param password        пароль для теста
      * @param expectedSuccess ожидаемый результат (true/false)
-     * @param description описание тестового сценария
-     * @param testInfo информация о тесте для получения метаданных
+     * @param description     описание тестового сценария
+     * @param testInfo        информация о тесте для получения метаданных
      */
     @ParameterizedTest(name = "[{index}] {3}") // Кастомное имя для отчета
     @CsvSource({
@@ -55,7 +56,11 @@ public class ParameterizedLoginTest extends TestBase {
             "'', strongPass456!, false, 'Пустой username'",
             "admin, '', false, 'Пустой password'"
     })
+    @Feature("Авторизация")
+    @Story("Вход в систему")
     @DisplayName("CSV Source Test")
+    @Tag("all")
+    @Tag("all2")
     @Tag("Smoke")
     @Tag("UI")
     @Tag("DataFromCsvSource")
@@ -91,21 +96,24 @@ public class ParameterizedLoginTest extends TestBase {
         }
     }
 
+    private final LoginPage loginPage = new LoginPage();
+
     /**
      * Параметризованный тест с использованием CSV файла как источника данных.
      * Данные читаются из внешнего файла.
      *
-     * @param username имя пользователя для теста
-     * @param password пароль для теста
+     * @param username        имя пользователя для теста
+     * @param password        пароль для теста
      * @param expectedSuccess ожидаемый результат (true/false)
-     * @param description описание тестового сценария
+     * @param description     описание тестового сценария
      */
     @ParameterizedTest(name = "[{index}] {3}") // Используем только description
     @CsvFileSource(resources = "/test-data/login-data.csv", numLinesToSkip = 1)
     @DisplayName("CSV File Test")
+    @Tag("all")
     @Tag("Regression")
     @Tag("UI")
-    @Tag("DataFromCsvSource")
+    @Tag("DataFromCsvSourceFile")
     void testLoginWithCsvFile(String username, String password,
                               boolean expectedSuccess, String description,
                               TestInfo testInfo) {
@@ -141,6 +149,7 @@ public class ParameterizedLoginTest extends TestBase {
     @ParameterizedTest
     @ValueSource(strings = {""})
     @DisplayName("Username validation test: {0}")
+    @Tag("all")
     @Tag("Validation")
     void testUsernameValidation(String username) {
         open("http://localhost:3000/login");
@@ -161,6 +170,7 @@ public class ParameterizedLoginTest extends TestBase {
     @ParameterizedTest
     @MethodSource("provideEdgeCaseData")
     @DisplayName("Edge case test: {2}")
+    @Tag("all")
     @Tag("EdgeCase")
     @Tag("Security")
     void testLoginEdgeCases(String username, String password, String scenario) {
@@ -198,6 +208,7 @@ public class ParameterizedLoginTest extends TestBase {
     @org.junit.jupiter.params.provider.NullSource
     @org.junit.jupiter.params.provider.EmptySource
     @DisplayName("Null/Empty username test: {0}")
+    @Tag("all")
     @Tag("Boundary")
     void testNullAndEmptyUsername(String username) {
         open("http://localhost:3000/login");

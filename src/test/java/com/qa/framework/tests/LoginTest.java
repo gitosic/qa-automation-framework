@@ -5,7 +5,12 @@ import com.qa.framework.pages.LoginPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.codeborne.selenide.Selenide.open;
+import java.time.Duration;
+
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.WebDriverConditions.urlContaining;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,6 +67,26 @@ public class LoginTest extends TestBase {
         System.out.println("✅ All page elements are present!");
     }
 
+    @Test
+    @DisplayName("Успешный логин с валидными креденшелами")
+    void testSuccessfulLoginCorrectVersion() {
+        open("/login");
+        loginPage.waitForPageLoad();
+
+        loginPage.enterUsername("admin")
+                .enterPassword("password")
+                .clickLogin();
+
+        // Правильное ожидание редиректа (макс 5 секунд)
+        webdriver().shouldHave(urlContaining("/dashboard"), Duration.ofSeconds(5));
+
+        // Проверяем контент dashboard страницы
+        $("body").shouldBe(visible)
+                .shouldHave(text("Dashboard"), text("Welcome"));
+
+        System.out.println("✅ Successful login test passed! Redirected to dashboard.");
+    }
+
     /**
      * Тест проверяет успешную авторизацию с валидными учетными данными
      * Проверяет редирект на dashboard страницу и наличие контента
@@ -81,16 +106,16 @@ public class LoginTest extends TestBase {
         // Ждем редиректа на dashboard
         // Даем больше времени, так есть setTimeout на 1 секунду
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2000); // Принудительная остановка потока на 2 секунды
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            Thread.currentThread().interrupt(); // Восстанавливаем флаг прерывания
         }
 
         // Проверяем что URL изменился на dashboard
         assertTrue(url().contains("/dashboard"), "Should be redirected to dashboard. Current URL: " + url());
 
         // Проверяем контент dashboard страницы
-        String pageContent = com.codeborne.selenide.Selenide.webdriver().driver().source();
+        String pageContent = webdriver().driver().source();
         assertTrue(pageContent.contains("Dashboard"), "Should be on dashboard page");
         assertTrue(pageContent.contains("Welcome"), "Should contain welcome message");
 

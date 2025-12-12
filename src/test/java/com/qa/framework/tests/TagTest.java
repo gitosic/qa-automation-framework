@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TagTest {
 
     @Test
+    @Tag("all")
+    @Tag("all2")
     @Tag("SomeTag1")
     void testWithTag1() throws InterruptedException {
         Thread.sleep(2000);
@@ -16,6 +18,7 @@ public class TagTest {
     }
 
     @Test
+    @Tag("all")
     @Tag("SomeTag1")
     void testWithTag2() throws InterruptedException {
         Thread.sleep(2000);
@@ -24,6 +27,7 @@ public class TagTest {
     }
 
     @Test
+    @Tag("all")
     @Tag("SomeTag1")
     void testWithTag3() throws InterruptedException {
         Thread.sleep(2000);
@@ -32,6 +36,7 @@ public class TagTest {
     }
 
     @Test
+    @Tag("all")
     @Tag("SomeTag1")
     void testWithTag4() throws InterruptedException {
         Thread.sleep(2000);
@@ -40,6 +45,7 @@ public class TagTest {
     }
 
     @Test
+    @Tag("all")
     @Tag("SomeTag1")
     void testWithTag5() throws InterruptedException {
         Thread.sleep(2000);
