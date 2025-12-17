@@ -51,10 +51,10 @@ public class DashboardPage extends BasePage {
     }
 
     /**
-     * Выполняет клик по ссылке Logout и возвращает экземпляр LoginPage.
+     * Выполняет клик по ссылке Logout и возвращает экземпляр LoginPageUI.
      * Реализует навигацию между страницами используя Fluent Interface паттерн.
      *
-     * @return экземпляр LoginPage для последующих действий после logout
+     * @return экземпляр LoginPageUI для последующих действий после logout
      */
     public LoginPage clickLogout() {
         clickElement(logoutLink);

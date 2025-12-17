@@ -67,4 +67,36 @@ public abstract class BasePage extends TestBase {
     protected <T extends BasePage> T openPage(Class<T> pageClass) {
         return page(pageClass);
     }
+
+    // ДОБАВЛЕНО: Метод для получения элементов в Selenide-стиле
+    /**
+     * Получает элемент по CSS селектору (Selenide стиль)
+     *
+     * @param cssSelector CSS селектор элемента
+     * @return SelenideElement
+     */
+    protected SelenideElement $(String cssSelector) {
+        return com.codeborne.selenide.Selenide.$(cssSelector);
+    }
+
+    /**
+     * Получает элемент по XPath (Selenide стиль)
+     *
+     * @param xpath XPath выражение
+     * @return SelenideElement
+     */
+    protected SelenideElement $x(String xpath) {
+        return com.codeborne.selenide.Selenide.$x(xpath);
+    }
+
+    /**
+     * Получает элемент по атрибуту
+     *
+     * @param attributeName имя атрибута
+     * @param attributeValue значение атрибута
+     * @return SelenideElement
+     */
+    protected SelenideElement findByAttribute(String attributeName, String attributeValue) {
+        return $("[" + attributeName + "='" + attributeValue + "']");
+    }
 }

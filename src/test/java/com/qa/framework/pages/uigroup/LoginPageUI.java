@@ -1,11 +1,12 @@
-package com.qa.framework.pages;
+package com.qa.framework.pages.uigroup;
 
 import com.codeborne.selenide.SelenideElement;
+import com.qa.framework.pages.BasePage;
 
 import java.time.Duration;
 
-import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selenide.$;
 
 /**
  * Page Object класс для страницы логина banking application.
@@ -16,14 +17,17 @@ import static com.codeborne.selenide.Condition.*;
  * @author Your Name
  * @version 1.0
  */
-public class LoginPage extends BasePage {
+public class LoginPageUI extends BasePage {
 
     // Используем Selenide селекторы для инициализации элементов
+    private SelenideElement loginForm = $(".login-form");
     private SelenideElement usernameField = $("#username");
     private SelenideElement passwordField = $("#password");
     private SelenideElement loginButton = $("button[type='submit']");
     private SelenideElement errorMessage = $("#errorMessage");
     private SelenideElement successMessage = $("#successMessage");
+    private SelenideElement usernameLabel = $("label[for='username']");
+    private SelenideElement passwordLabel = $("label[for='password']");
 
     /**
      * Ожидает появления сообщения об успешной операции на странице.
@@ -49,6 +53,7 @@ public class LoginPage extends BasePage {
      * Выбрасывает исключение если элементы не загружаются в течение 5 секунд.
      */
     public void waitForPageLoad() {
+        loginForm.shouldBe(visible, Duration.ofSeconds(5));
         usernameField.shouldBe(visible, Duration.ofSeconds(5));
         passwordField.shouldBe(visible, Duration.ofSeconds(5));
         loginButton.shouldBe(visible, Duration.ofSeconds(5));
@@ -64,13 +69,85 @@ public class LoginPage extends BasePage {
     }
 
     /**
+     * Получает элемент формы логина
+     *
+     * @return SelenideElement формы логина
+     */
+    public SelenideElement getLoginForm() {
+        return loginForm;
+    }
+
+    /**
+     * Получает поле имени пользователя
+     *
+     * @return SelenideElement поля username
+     */
+    public SelenideElement getUsernameField() {
+        return usernameField;
+    }
+
+    /**
+     * Получает поле пароля
+     *
+     * @return SelenideElement поля password
+     */
+    public SelenideElement getPasswordField() {
+        return passwordField;
+    }
+
+    /**
+     * Получает кнопку Login
+     *
+     * @return SelenideElement кнопки Login
+     */
+    public SelenideElement getLoginButton() {
+        return loginButton;
+    }
+
+    /**
+     * Получает элемент сообщения об ошибке
+     *
+     * @return SelenideElement сообщения об ошибке
+     */
+    public SelenideElement getErrorMessage() {
+        return errorMessage;
+    }
+
+    /**
+     * Получает элемент сообщения об успехе
+     *
+     * @return SelenideElement сообщения об успехе
+     */
+    public SelenideElement getSuccessMessage() {
+        return successMessage;
+    }
+
+    /**
+     * Получает label для поля username
+     *
+     * @return SelenideElement label username
+     */
+    public SelenideElement getUsernameLabel() {
+        return usernameLabel;
+    }
+
+    /**
+     * Получает label для поля password
+     *
+     * @return SelenideElement label password
+     */
+    public SelenideElement getPasswordLabel() {
+        return passwordLabel;
+    }
+
+    /**
      * Вводит имя пользователя в соответствующее поле формы.
      * Использует Fluent Interface паттерн, возвращая this для цепочечных вызовов.
      *
      * @param username имя пользователя для ввода
      * @return this экземпляр LoginPageUI для цепочечных вызовов
      */
-    public LoginPage enterUsername(String username) {
+    public LoginPageUI enterUsername(String username) {
         setText(usernameField, username);
         return this;
     }
@@ -82,7 +159,7 @@ public class LoginPage extends BasePage {
      * @param password пароль для ввода
      * @return this экземпляр LoginPageUI для цепочечных вызовов
      */
-    public LoginPage enterPassword(String password) {
+    public LoginPageUI enterPassword(String password) {
         setText(passwordField, password);
         return this;
     }
@@ -94,6 +171,18 @@ public class LoginPage extends BasePage {
      */
     public void clickLogin() {
         clickElement(loginButton);
+    }
+
+    /**
+     * Выполняет полный процесс логина
+     *
+     * @param username имя пользователя
+     * @param password пароль
+     */
+    public void login(String username, String password) {
+        enterUsername(username)
+                .enterPassword(password)
+                .clickLogin();
     }
 
     /**
@@ -199,5 +288,68 @@ public class LoginPage extends BasePage {
      */
     public boolean isLoginButtonDisplayed() {
         return loginButton.isDisplayed();
+    }
+
+    /**
+     * Проверяет видимость формы логина
+     *
+     * @return true если форма логина видима, иначе false
+     */
+    public boolean isLoginFormDisplayed() {
+        return loginForm.isDisplayed();
+    }
+
+    /**
+     * Проверяет активность кнопки Login
+     *
+     * @return true если кнопка активна, иначе false
+     */
+    public boolean isLoginButtonEnabled() {
+        return loginButton.isEnabled();
+    }
+
+    /**
+     * Проверяет активность поля username
+     *
+     * @return true если поле активно, иначе false
+     */
+    public boolean isUsernameFieldEnabled() {
+        return usernameField.isEnabled();
+    }
+
+    /**
+     * Проверяет активность поля password
+     *
+     * @return true если поле активно, иначе false
+     */
+    public boolean isPasswordFieldEnabled() {
+        return passwordField.isEnabled();
+    }
+
+    /**
+     * Получает текст заголовка страницы
+     *
+     * @return текст заголовка
+     */
+    public String getPageHeaderText() {
+        return pageHeader.getText();
+    }
+
+    /**
+     * Получает текст label для username
+     *
+     * @return текст label
+     */
+    public String getUsernameLabelText() {
+        return usernameLabel.getText();
+    }
+
+    /**
+     * Получает текст label для password
+     *
+     * @return текст label
+     */
+    public String getPasswordLabelText() {
+        return passwordLabel.getText();
     }
 }
