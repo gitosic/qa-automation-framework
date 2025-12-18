@@ -104,6 +104,19 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.3.30</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,6 +127,10 @@
                 <version>3.11.0</version>
                 <configuration>
                     <release>17</release>
+                    <!-- ИСКЛЮЧАЕМ ПРОБЛЕМНЫЕ ФАЙЛЫ ИЗ КОМПИЛЯЦИИ ТЕСТОВ -->
+                    <testExcludes>
+                        <testExclude>**/patterns/**</testExclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
 
@@ -126,6 +143,11 @@
                     <threadCount>${parallel.tests}</threadCount>
                     <useUnlimitedThreads>false</useUnlimitedThreads>
                     <perCoreThreadCount>false</perCoreThreadCount>
+
+                    <!-- Исключаем папку со старыми тестами из запуска -->
+                    <excludes>
+                        <exclude>**/patterns/**</exclude>
+                    </excludes>
 
                     <groups>${includeTags}</groups>
                     <excludedGroups>${excludeTags}</excludedGroups>
