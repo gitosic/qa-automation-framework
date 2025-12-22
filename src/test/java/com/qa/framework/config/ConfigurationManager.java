@@ -61,6 +61,54 @@ public final class ConfigurationManager {
         return value;
     }
 
+    // НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С КАК СВОЙСТВАМИ
+    public static Properties getProperties() {
+        return properties;
+    }
+
+    public static String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+
+    public static String getProperty(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
+    }
+
+    // МЕТОДЫ ДЛЯ KAFKA
+    public static String getKafkaBootstrapServers() {
+        return getProperty("kafka.bootstrap.servers", "localhost:9094");
+    }
+
+    public static String getKafkaIncomingOrdersTopic() {
+        return getProperty("kafka.topic.incoming_orders", "incoming_orders");
+    }
+
+    public static String getKafkaUserActivitiesTopic() {
+        return getProperty("kafka.topic.user_activities", "user_activities");
+    }
+
+    public static String getKafkaSystemLogsTopic() {
+        return getProperty("kafka.topic.system_logs", "system_logs");
+    }
+
+    // МЕТОДЫ ДЛЯ ПРИЛОЖЕНИЯ
+    public static String getAppBaseUrl() {
+        return getProperty("app.base.url");
+    }
+
+    public static String getAppApiUrl() {
+        return getProperty("app.api.url");
+    }
+
+    // МЕТОДЫ ДЛЯ ТЕСТОВЫХ НАСТРОЕК
+    public static int getTestTimeout() {
+        return Integer.parseInt(getProperty("test.timeout", "30"));
+    }
+
+    public static String getTestBrowser() {
+        return getProperty("test.browser", "chrome");
+    }
+
     public static void printConfig() {
         System.out.println("=== Loaded DB configuration ===");
         System.out.println("URL     : " + getDbUrl());
@@ -68,5 +116,15 @@ public final class ConfigurationManager {
         System.out.println("Schema  : " + getDbSchema());
         System.out.println("Password: ***");
         System.out.println("==============================");
+
+        // Печатаем Kafka конфигурацию если она есть
+        String kafkaServers = getKafkaBootstrapServers();
+        if (kafkaServers != null && !kafkaServers.isEmpty()) {
+            System.out.println("=== Kafka Configuration ===");
+            System.out.println("Bootstrap Servers: " + kafkaServers);
+            System.out.println("Topics: " + getKafkaIncomingOrdersTopic() + ", " +
+                    getKafkaUserActivitiesTopic() + ", " + getKafkaSystemLogsTopic());
+            System.out.println("==========================");
+        }
     }
 }
