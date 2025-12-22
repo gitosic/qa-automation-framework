@@ -61,9 +61,8 @@ public final class ConfigurationManager {
         return value;
     }
 
-    // НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С КАК СВОЙСТВАМИ
     public static Properties getProperties() {
-        return properties;
+        return new Properties(properties); // Возвращаем копию для безопасности
     }
 
     public static String getProperty(String key) {
@@ -76,7 +75,7 @@ public final class ConfigurationManager {
 
     // МЕТОДЫ ДЛЯ KAFKA
     public static String getKafkaBootstrapServers() {
-        return getProperty("kafka.bootstrap.servers", "localhost:9094");
+        return getProperty("kafka.bootstrap.servers", "localhost:9092");
     }
 
     public static String getKafkaIncomingOrdersTopic() {

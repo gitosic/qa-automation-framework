@@ -26,27 +26,13 @@
     </properties>
 
     <dependencies>
-        <!-- существующие зависимости без изменений -->
+        <!-- JUnit 5 for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- JUnit 5 for testing -->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-api</artifactId>-->
-<!--            <version>5.9.2</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-engine</artifactId>-->
-<!--            <version>5.9.2</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>com.codeborne</groupId>
@@ -132,16 +118,25 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Kafka dependencies -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>3.5.0</version>
+            <scope>test</scope> <!-- Changed to test scope -->
         </dependency>
 
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>2.8.0</version>
+        </dependency>
+
+        <!-- Gson для JSON сериализации -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.2</version>
         </dependency>
 
         <dependency>
@@ -183,8 +178,11 @@
                         <exclude>**/patterns/**</exclude>
                     </excludes>
 
-                    <groups>${includeTags}</groups>
-                    <excludedGroups>${excludeTags}</excludedGroups>
+                    <!-- Настройки для выполнения тестов по тегам -->
+                    <properties>
+                        <includeTags>${includeTags}</includeTags>
+                        <excludeTags>${excludeTags}</excludeTags>
+                    </properties>
 
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
@@ -195,6 +193,7 @@
                         <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
                         <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
                         <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
+                        <test.env>${test.env:st}</test.env> <!-- Добавлена переменная окружения -->
                     </systemPropertyVariables>
                 </configuration>
                 <dependencies>
@@ -217,4 +216,22 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Профиль для интеграционных тестов -->
+        <profile>
+            <id>integration-tests</id>
+            <properties>
+                <includeTags>integration</includeTags>
+            </properties>
+        </profile>
+
+        <!-- Профиль для unit тестов -->
+        <profile>
+            <id>unit-tests</id>
+            <properties>
+                <excludeTags>integration</excludeTags>
+            </properties>
+        </profile>
+    </profiles>
 </project>
