@@ -1,8 +1,8 @@
 package com.qa.framework.tests.kafkaTests;
 
 import com.qa.framework.config.ConfigurationManager;
-import com.qa.framework.kafka.adaptation.ConsumerAdapter;
-import com.qa.framework.kafka.adaptation.ProducerAdapter;
+import com.qa.framework.kafka.ConsumerAdapter;
+import com.qa.framework.kafka.ProducerAdapter;
 import org.junit.jupiter.api.*;
 
 import java.util.HashMap;

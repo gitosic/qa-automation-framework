@@ -1,4 +1,4 @@
-package com.qa.framework.kafka.adaptation;
+package com.qa.framework.kafka;
 
 import com.google.gson.Gson;
 import org.apache.kafka.clients.producer.KafkaProducer;

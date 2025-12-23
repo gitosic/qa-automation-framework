@@ -1,7 +1,5 @@
-package com.qa.framework.kafka.adaptation;
+package com.qa.framework.kafka;
 
-import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.common.config.SslConfigs;
 import java.util.Properties;
 
 public class CommonConfig {

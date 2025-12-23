@@ -1,4 +1,4 @@
-package com.qa.framework.kafka.adaptation;
+package com.qa.framework.kafka;
 
 import lombok.Builder;
 import lombok.Getter;

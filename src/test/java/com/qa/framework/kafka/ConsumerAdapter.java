@@ -1,4 +1,4 @@
-package com.qa.framework.kafka.adaptation;
+package com.qa.framework.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
