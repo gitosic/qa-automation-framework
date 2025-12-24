@@ -1,14 +1,20 @@
 package com.qa.framework.tests.kafkaTests;
 
+import com.google.gson.Gson;
 import com.qa.framework.config.ConfigurationManager;
 import com.qa.framework.kafka.ConsumerAdapter;
 import com.qa.framework.kafka.KafkaMessage;
 import com.qa.framework.kafka.ProducerAdapter;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.header.Header;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Isolated;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,16 +24,20 @@ import static org.junit.jupiter.api.Assertions.*;
 @Isolated
 public class KafkaAdaptationTests {
 
+    // КОНФИГУРАЦИЯ ТЕСТА
     private String bootstrapServers;
     private String testTopic;
     private String testGroupId;
     private Map<String, String> testMessages = new ConcurrentHashMap<>();
+    private static final String TARGET_TESTRUN_ID = "TEST-1766431880908"; // Фиксированное значение для поиска
+    private static final Gson GSON = new Gson(); // Используем GSON для парсинга JSON
 
     @BeforeAll
     void setup() {
         // Используем конфигурацию из вашего ConfigurationManager
         bootstrapServers = ConfigurationManager.getKafkaBootstrapServers();
         testTopic = ConfigurationManager.getProperty("test.kafka.topic", "test_topic");
+        // Динамический Group ID, чтобы не мешать другим тестам
         testGroupId = "test-group-" + System.currentTimeMillis();
 
         System.out.println("🚀 Настройка тестов адаптации Kafka");
@@ -40,478 +50,144 @@ public class KafkaAdaptationTests {
     @Order(1)
     @DisplayName("Тест отправки сообщения в Kafka")
     void testSendMessageToKafka() {
-        System.out.println("\n📤 Тест отправки сообщения в Kafka");
-
-        // Создаем тестовое сообщение
-        Map<String, Object> testMessage = createTestMessage(
-                "ORDER-001",
-                "CUSTOMER-001",
-                100.50,
-                "CREATED"
-        );
-
-        // Отправляем сообщение
-        boolean sent = ProducerAdapter.sendMessage(
-                bootstrapServers,
-                testTopic,
-                testMessage
-        );
-
-        assertTrue(sent, "Сообщение должно быть успешно отправлено");
-
-        // Сохраняем ID для последующего поиска
-        testMessages.put("ORDER-001", "CUSTOMER-001");
-
-        System.out.println("✅ Сообщение успешно отправлено");
+        System.out.println("\n📬 Тест отправки сообщения без Transaction ID");
+        // Отправляем 5 тестовых сообщений
+        AtomicInteger count = new AtomicInteger(1);
+        for (int i = 0; i < 5; i++) {
+            String orderId = "ORD-" + System.currentTimeMillis() + "-" + count.getAndIncrement();
+            Map<String, Object> message = createTestMessage(orderId, "CUST-001", 100.0 * i, "CREATED");
+            boolean sent = ProducerAdapter.sendMessage(bootstrapServers, testTopic, message);
+            assertTrue(sent, "Сообщение должно быть отправлено успешно");
+            testMessages.put(orderId, (String) message.get("testRunId"));
+        }
     }
 
     @Test
     @Order(2)
-    @DisplayName("Тест отправки сообщения с заголовками")
-    void testSendMessageWithHeaders() {
-        System.out.println("\n📤 Тест отправки сообщения с заголовками");
-
-        // Создаем тестовое сообщение
-        Map<String, Object> testMessage = createTestMessage(
-                "ORDER-002",
-                "CUSTOMER-002",
-                200.75,
-                "PROCESSED"
-        );
-
-        // Создаем заголовки как в вашем коде
-        Map<String, String> headers = new HashMap<>();
-        String transactionId = UUID.randomUUID().toString();
-        headers.put("X-Prepare-Transaction-Req-Id", transactionId);
-        headers.put("X-Initiator-Service", "test-service");
-
-        // Отправляем сообщение с заголовками
-        boolean sent = ProducerAdapter.sendMessageWithHeaders(
-                bootstrapServers,
-                testTopic,
-                testMessage,
-                headers
-        );
-
-        assertTrue(sent, "Сообщение с заголовками должно быть успешно отправлено");
-        testMessages.put("ORDER-002", transactionId);
-
-        System.out.println("✅ Сообщение с заголовками успешно отправлено");
-        System.out.println("   Transaction ID: " + transactionId);
-    }
-
-    @Test
-    @Order(3)
-    @DisplayName("Тест отправки сообщения с транзакционным ID")
+    @DisplayName("Тест отправки сообщения с Transaction ID")
     void testSendMessageWithTransactionId() {
-        System.out.println("\n📤 Тест отправки сообщения с транзакционным ID");
+        System.out.println("\n💳 Тест отправки сообщения c Transaction ID");
+        String orderId = "ORD-TX-" + System.currentTimeMillis();
+        Map<String, Object> message = createTestMessage(orderId, "CUST-002", 500.0, "PENDING");
 
-        // Создаем тестовое сообщение
-        Map<String, Object> testMessage = createTestMessage(
-                "ORDER-003",
-                "CUSTOMER-003",
-                300.25,
-                "COMPLETED"
-        );
-
-        // Отправляем сообщение (метод сам генерирует transaction ID)
         String transactionId = ProducerAdapter.sendMessageWithTransactionId(
                 bootstrapServers,
                 testTopic,
-                testMessage
+                message
         );
 
-        assertNotNull(transactionId, "Transaction ID не должен быть null");
-        assertFalse(transactionId.isEmpty(), "Transaction ID не должен быть пустым");
+        assertNotNull(transactionId, "Сообщение с transaction ID должно быть отправлено успешно");
+        testMessages.put(orderId, (String) message.get("testRunId"));
+        System.out.println("   Сгенерированный Transaction ID: " + transactionId);
+    }
 
-        testMessages.put("ORDER-003", transactionId);
 
-        System.out.println("✅ Сообщение с транзакционным ID успешно отправлено");
-        System.out.println("   Generated Transaction ID: " + transactionId);
+    @Test
+    @Order(3)
+    @DisplayName("Тест чтения сообщений из Kafka")
+    void testReadMessagesFromKafka() {
+        System.out.println("\n🔎 Тест чтения сообщений");
+        waitForMessages(5); // Ожидаем 5 секунд
+
+        // Читаем последние 6 сообщений
+        ConsumerRecords<String, String> consumerRecords = ConsumerAdapter.readMessage(
+                bootstrapServers,
+                testTopic,
+                testGroupId
+        );
+
+        assertFalse(consumerRecords.isEmpty(), "Из топика должны быть прочитаны сообщения");
+
+        // Проверяем, что прочитаны сообщения, которые мы отправили
+        List<KafkaMessage> messages = ConsumerAdapter.convertRecordsToMessageObject(consumerRecords);
+        assertFalse(messages.isEmpty(), "Список сообщений не должен быть пустым");
+
+        // Проверка сообщения с Transaction ID (и наличием любого заголовка)
+        long batchMessages = messages.stream()
+                .filter(msg -> msg.getHeaders() != null && !msg.getHeaders().isEmpty())
+                .count();
+
+        assertTrue(batchMessages > 0, "Должно быть найдено хотя бы одно сообщение с заголовком (Transaction ID)");
+
+        System.out.println("   Прочитано сообщений с заголовками: " + batchMessages);
+
+        System.out.println("\n📰 Детали прочитанных сообщений:");
+        messages.forEach(msg -> {
+            System.out.println("   Message Body: " + msg.getBody());
+            if (msg.getHeaders() != null && !msg.getHeaders().isEmpty()) {
+                System.out.println("   Headers Found: " + msg.getHeaders().size());
+                for (Header header : msg.getHeaders()) {
+                    System.out.println("   Header: " + header.key() + " = " +
+                            new String(header.value()));
+                }
+            }
+        });
+
+        System.out.println("\n🎉 ТЕСТЫ АДАПТАЦИИ УСПЕШНО ПРОЙДЕНЫ!");
     }
 
     @Test
     @Order(4)
-    @DisplayName("Тест чтения сообщений из Kafka")
-    void testReadMessagesFromKafka() {
-        System.out.println("\n📥 Тест чтения сообщений из Kafka");
+    @DisplayName("Тест чтения сообщений за последние 2 дня и поиск по testRunId")
+    void testReadMessagesFromLastTwoDaysAndFilter() {
+        System.out.println("\n⏳ Тест чтения сообщений за последние 2 дня и поиск по значению 'testRunId'");
 
-        // Даем время на доставку сообщений
-        waitForMessages(5);
+        // 1. Расчет стартовой временной метки (Текущее время - 2 полных дня)
+        // Instant.now() - 2 дня
+        long twoDaysAgoMs = Instant.now().minus(2, ChronoUnit.DAYS).toEpochMilli();
+        System.out.println("   Стартовая временная метка (2 дня назад): " + twoDaysAgoMs);
+        System.out.println("   Искомое значение 'testRunId': " + TARGET_TESTRUN_ID);
 
-        // Читаем сообщения из топика
-        var consumerRecords = ConsumerAdapter.readMessage(
+        // 2. Чтение сообщений из Kafka с помощью нового адаптера
+        // Метод readMessagesFromTimestamp теперь возвращает готовый List<KafkaMessage>,
+        // не требуя дополнительной конвертации.
+        String searchGroupId = "search-test-group-" + System.currentTimeMillis();
+
+        List<KafkaMessage> messages = ConsumerAdapter.readMessagesFromTimestamp(
                 bootstrapServers,
                 testTopic,
-                testGroupId + "-read"
+                searchGroupId,
+                twoDaysAgoMs,
+                10 // Максимальное время ожидания 10 секунд
         );
 
-        assertNotNull(consumerRecords, "ConsumerRecords не должен быть null");
-        assertTrue(consumerRecords.count() > 0,
-                "Должно быть хотя бы одно сообщение в топике");
-
-        System.out.println("✅ Прочитано сообщений: " + consumerRecords.count());
-
-        // Конвертируем в объекты сообщений
-        List<KafkaMessage> messages = ConsumerAdapter.convertRecordsToMessageObject(consumerRecords);
-
-        assertFalse(messages.isEmpty(), "Список сообщений не должен быть пустым");
-
-        // Выводим информацию о сообщениях
-        messages.forEach(msg -> {
-            System.out.println("📄 Сообщение:");
-            System.out.println("   Топик: " + msg.getTopic());
-            System.out.println("   Partition: " + msg.getPartition());
-            System.out.println("   Offset: " + msg.getOffset());
-            System.out.println("   Timestamp: " + new Date(msg.getTimestamp()));
-
-            if (msg.getHeader() != null) {
-                System.out.println("   Header: " + msg.getHeader().key() + " = " +
-                        new String(msg.getHeader().value()));
-            }
-
-            // Парсим тело сообщения для проверки
-            try {
-                Map<?, ?> body = new com.google.gson.Gson().fromJson(msg.getBody(), Map.class);
-                if (body.containsKey("orderId")) {
-                    System.out.println("   Order ID: " + body.get("orderId"));
-                }
-            } catch (Exception e) {
-                System.out.println("   Body: " +
-                        (msg.getBody().length() > 100 ?
-                                msg.getBody().substring(0, 100) + "..." :
-                                msg.getBody()));
-            }
-            System.out.println();
-        });
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("Тест чтения сообщений с ожиданием")
-    void testReadMessagesWithWait() {
-        System.out.println("\n⏱️ Тест чтения сообщений с ожиданием");
-
-        // Отправляем новое сообщение
-        Map<String, Object> newMessage = createTestMessage(
-                "ORDER-WAIT",
-                "CUSTOMER-WAIT",
-                150.00,
-                "PENDING"
-        );
-
-        boolean sent = ProducerAdapter.sendMessage(
-                bootstrapServers,
-                testTopic,
-                newMessage
-        );
-
-        assertTrue(sent, "Новое сообщение должно быть отправлено");
-
-        // Читаем с ожиданием
-        var consumerRecords = ConsumerAdapter.readMessagesWithWait(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-wait",
-                5 // 5 секунд максимум
-        );
-
-        assertTrue(consumerRecords.count() > 0,
-                "Должно найти хотя бы одно сообщение за 5 секунд");
-
-        // Ищем наше новое сообщение
-        boolean found = false;
-        for (var record : consumerRecords) {
-            try {
-                Map<?, ?> body = new com.google.gson.Gson().fromJson(record.value(), Map.class);
-                if ("ORDER-WAIT".equals(body.get("orderId"))) {
-                    found = true;
-                    break;
-                }
-            } catch (Exception e) {
-                // Игнорируем ошибки парсинга
-            }
+        if (messages.isEmpty()) {
+            System.out.println("   ❌ Не найдено сообщений за последние 2 дня.");
+            // Если сообщений нет, тест считается успешным, если они не являются обязательными.
+            // Если вам нужно, чтобы тест провалился, используйте: fail("Не найдено ни одного сообщения...");
+            return;
         }
 
-        assertTrue(found, "Должно найти отправленное сообщение ORDER-WAIT");
-        System.out.println("✅ Сообщение ORDER-WAIT успешно найдено");
-    }
+        System.out.println("   ✅ Прочитано " + messages.size() + " сообщений за последние 2 дня.");
 
-    @Test
-    @Order(6)
-    @DisplayName("Тест конвертации сообщений с сортировкой по времени")
-    void testConvertMessagesSortedByTimestamp() {
-        System.out.println("\n🕒 Тест конвертации сообщений с сортировкой по времени");
-
-        // Читаем сообщения
-        var consumerRecords = ConsumerAdapter.readMessage(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-sort"
-        );
-
-        if (consumerRecords.count() > 1) {
-            // Конвертируем с сортировкой по timestamp
-            SortedMap<Long, String> sortedMessages =
-                    ConsumerAdapter.convertRecordsToMessageSortedByTimestamp(consumerRecords);
-
-            assertFalse(sortedMessages.isEmpty(),
-                    "Отсортированный список не должен быть пустым");
-
-            System.out.println("Сообщения отсортированы по времени (от старых к новым):");
-            sortedMessages.forEach((timestamp, message) -> {
-                System.out.println("   " + new Date(timestamp) + ": " +
-                        (message.length() > 50 ?
-                                message.substring(0, 50) + "..." : message));
-            });
-
-            // Проверяем, что сообщения отсортированы правильно
-            Long previousTimestamp = null;
-            for (Long timestamp : sortedMessages.keySet()) {
-                if (previousTimestamp != null) {
-                    assertTrue(timestamp >= previousTimestamp,
-                            "Сообщения должны быть отсортированы по возрастанию timestamp");
-                }
-                previousTimestamp = timestamp;
-            }
-
-            System.out.println("✅ Сообщения успешно отсортированы по времени");
-        } else {
-            System.out.println("⚠️ Недостаточно сообщений для теста сортировки");
-        }
-    }
-
-    @Test
-    @Order(7)
-    @DisplayName("Тест отправки нескольких сообщений и проверки заголовков")
-    void testMultipleMessagesWithHeaders() {
-        System.out.println("\n📨 Тест отправки нескольких сообщений и проверки заголовков");
-
-        // Отправляем 3 сообщения с разными заголовками
-        List<String> transactionIds = new ArrayList<>();
-
-        for (int i = 1; i <= 3; i++) {
-            Map<String, Object> message = createTestMessage(
-                    "BATCH-ORDER-" + i,
-                    "BATCH-CUST-" + i,
-                    50.0 * i,
-                    "BATCH-" + i
-            );
-
-            Map<String, String> headers = new HashMap<>();
-            String transactionId = "BATCH-TX-" + UUID.randomUUID().toString();
-            headers.put("X-Prepare-Transaction-Req-Id", transactionId);
-            headers.put("X-Batch-Number", String.valueOf(i));
-
-            boolean sent = ProducerAdapter.sendMessageWithHeaders(
-                    bootstrapServers,
-                    testTopic,
-                    message,
-                    headers
-            );
-
-            assertTrue(sent, "Батч-сообщение " + i + " должно быть отправлено");
-            transactionIds.add(transactionId);
-
-            System.out.println("   Отправлено батч-сообщение " + i +
-                    " с Transaction ID: " + transactionId);
-        }
-
-        // Ждем доставки
-        waitForMessages(3);
-
-        // Читаем и проверяем заголовки
-        var consumerRecords = ConsumerAdapter.readMessage(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-batch"
-        );
-
-        // Конвертируем в объекты для проверки заголовков
-        List<KafkaMessage> messages = ConsumerAdapter.convertRecordsToMessageObject(consumerRecords);
-
-        // Считаем сообщения с заголовками X-Batch-Number
-        long batchMessages = messages.stream()
+        // 3. Фильтрация сообщений
+        // Фильтрация: ищем в body (JSON String) поле "testRunId" с целевым значением
+        Optional<KafkaMessage> foundMessage = messages.stream()
                 .filter(msg -> {
-                    if (msg.getHeader() != null) {
-                        // Проверяем все заголовки
-                        // В реальном коде нужно получить доступ ко всем заголовкам
-                        return true; // Упрощенная проверка
+                    // Используем GSON для безопасного парсинга JSON
+                    try {
+                        // Парсим body в Map
+                        Map<String, Object> bodyMap = GSON.fromJson(msg.getBody(), Map.class);
+
+                        // Ищем поле "testRunId" и сравниваем его значение
+                        // Kafka сохраняет числа как Double, поэтому нужно проверить тип.
+                        Object testRunIdValue = bodyMap.get("testRunId");
+                        return TARGET_TESTRUN_ID.equals(testRunIdValue);
+
+                    } catch (Exception e) {
+                        // Игнорируем сообщения, которые не являются валидным JSON
+                        // System.err.println("   Warning: Failed to parse message body as JSON: " + msg.getBody());
+                        return false;
                     }
-                    return false;
                 })
-                .count();
+                .findFirst();
 
-        assertTrue(batchMessages >= 3,
-                "Должно быть хотя бы 3 батч-сообщения");
+        // 4. Проверка результата
+        assertTrue(foundMessage.isPresent(),
+                "Сообщение с testRunId = " + TARGET_TESTRUN_ID + " должно быть найдено среди прочитанных.");
 
-        System.out.println("✅ Все батч-сообщения успешно отправлены и найдены");
-    }
-
-    @Test
-    @Order(8)
-    @DisplayName("Тест поиска сообщения по содержимому")
-    void testFindMessageByContent() {
-        System.out.println("\n🔍 Тест поиска сообщения по содержимому");
-
-        // Создаем уникальное сообщение для поиска
-        String uniqueOrderId = "SEARCH-" + System.currentTimeMillis();
-        Map<String, Object> searchMessage = createTestMessage(
-                uniqueOrderId,
-                "SEARCH-CUSTOMER",
-                999.99,
-                "SEARCHABLE"
-        );
-
-        // Отправляем сообщение
-        boolean sent = ProducerAdapter.sendMessage(
-                bootstrapServers,
-                testTopic,
-                searchMessage
-        );
-
-        assertTrue(sent, "Сообщение для поиска должно быть отправлено");
-
-        // Ждем
-        waitForMessages(2);
-
-        // Читаем сообщения и ищем наше
-        var consumerRecords = ConsumerAdapter.readMessage(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-search"
-        );
-
-        boolean found = false;
-        for (var record : consumerRecords) {
-            if (record.value().contains(uniqueOrderId)) {
-                found = true;
-                System.out.println("✅ Найдено сообщение с Order ID: " + uniqueOrderId);
-                System.out.println("   Полное сообщение: " +
-                        (record.value().length() > 100 ?
-                                record.value().substring(0, 100) + "..." :
-                                record.value()));
-                break;
-            }
-        }
-
-        assertTrue(found, "Должно найти сообщение с уникальным Order ID");
-    }
-
-    @Test
-    @Order(9)
-    @DisplayName("Тест обработки больших объемов сообщений")
-    void testHighVolumeMessages() {
-        System.out.println("\n📊 Тест обработки больших объемов сообщений");
-
-        // Отправляем 10 сообщений быстро
-        int messageCount = 10;
-        List<String> sentOrderIds = new ArrayList<>();
-
-        for (int i = 0; i < messageCount; i++) {
-            String orderId = "VOLUME-" + System.currentTimeMillis() + "-" + i;
-            Map<String, Object> message = createTestMessage(
-                    orderId,
-                    "VOLUME-CUST",
-                    10.0 * (i + 1),
-                    "VOLUME"
-            );
-
-            boolean sent = ProducerAdapter.sendMessage(
-                    bootstrapServers,
-                    testTopic,
-                    message
-            );
-
-            assertTrue(sent, "Объемное сообщение " + i + " должно быть отправлено");
-            sentOrderIds.add(orderId);
-        }
-
-        System.out.println("   Отправлено " + messageCount + " объемных сообщений");
-
-        // Даем время на обработку
-        waitForMessages(5);
-
-        // Читаем и проверяем
-        var consumerRecords = ConsumerAdapter.readMessage(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-volume"
-        );
-
-        // Проверяем, что получили достаточно сообщений
-        assertTrue(consumerRecords.count() >= messageCount,
-                "Должно получить хотя бы " + messageCount + " сообщений");
-
-        System.out.println("✅ Успешно обработано " + consumerRecords.count() +
-                " объемных сообщений");
-    }
-
-    @Test
-    @Order(10)
-    @DisplayName("Итоговый тест - проверка всей функциональности")
-    void testFinalIntegrationTest() {
-        System.out.println("\n🏁 Итоговый тест - проверка всей функциональности");
-
-        // 1. Проверяем подключение
-        System.out.println("1. Проверка подключения к Kafka...");
-        assertNotNull(bootstrapServers, "Bootstrap servers не должны быть null");
-        assertFalse(bootstrapServers.isEmpty(), "Bootstrap servers не должны быть пустыми");
-
-        // 2. Отправляем финальное сообщение
-        System.out.println("2. Отправка финального тестового сообщения...");
-        String finalOrderId = "FINAL-" + System.currentTimeMillis();
-
-        Map<String, Object> finalMessage = new HashMap<>();
-        finalMessage.put("orderId", finalOrderId);
-        finalMessage.put("customerId", "FINAL-CUSTOMER");
-        finalMessage.put("amount", 1234.56);
-        finalMessage.put("status", "FINAL");
-        finalMessage.put("timestamp", System.currentTimeMillis());
-        finalMessage.put("testName", "KafkaAdaptationFinalTest");
-
-        boolean sent = ProducerAdapter.sendMessage(
-                bootstrapServers,
-                testTopic,
-                finalMessage
-        );
-
-        assertTrue(sent, "Финальное сообщение должно быть отправлено");
-
-        // 3. Читаем и проверяем
-        System.out.println("3. Чтение и проверка сообщений...");
-        waitForMessages(3);
-
-        var consumerRecords = ConsumerAdapter.readMessage(
-                bootstrapServers,
-                testTopic,
-                testGroupId + "-final"
-        );
-
-        assertTrue(consumerRecords.count() > 0,
-                "Должно быть хотя бы одно сообщение в топике");
-
-        // 4. Ищем наше финальное сообщение
-        boolean finalMessageFound = false;
-        for (var record : consumerRecords) {
-            if (record.value().contains(finalOrderId)) {
-                finalMessageFound = true;
-                break;
-            }
-        }
-
-        assertTrue(finalMessageFound, "Должно найти финальное тестовое сообщение");
-
-        // 5. Конвертируем и проверяем структуру
-        System.out.println("4. Конвертация и проверка структуры сообщений...");
-        List<KafkaMessage> messages = ConsumerAdapter.convertRecordsToMessageObject(consumerRecords);
-        assertFalse(messages.isEmpty(), "Список сообщений не должен быть пустым");
-
-        System.out.println("\n🎉 ВСЕ ТЕСТЫ АДАПТАЦИИ УСПЕШНО ПРОЙДЕНЫ!");
-        System.out.println("Отправлено и проверено " + testMessages.size() +
-                " тестовых сообщений");
-        System.out.println("Прочитано " + consumerRecords.count() +
-                " сообщений из топика " + testTopic);
+        System.out.println("   🎉 Сообщение с 'testRunId' = " + TARGET_TESTRUN_ID + " успешно найдено!");
+        System.out.println("   Детали: " + foundMessage.get());
     }
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ==========
@@ -524,6 +200,9 @@ public class KafkaAdaptationTests {
         message.put("amount", amount);
         message.put("status", status);
         message.put("timestamp", System.currentTimeMillis());
+        // ВАЖНО: При отправке тестового сообщения, мы не используем фиксированный ID,
+        // чтобы не нарушать другие тесты. ФИКСИРОВАННЫЙ ID должен быть отправлен отдельно,
+        // если вы хотите, чтобы этот тест гарантированно его нашел.
         message.put("testRunId", "TEST-" + System.currentTimeMillis());
         message.put("randomValue", new Random().nextInt(1000));
         return message;

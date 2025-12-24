@@ -2,11 +2,14 @@ package com.qa.framework.tests.kafkaTests;
 
 import com.qa.framework.config.ConfigurationManager;
 import com.qa.framework.kafka.ConsumerAdapter;
+import com.qa.framework.kafka.KafkaMessage;
 import com.qa.framework.kafka.ProducerAdapter;
+import org.apache.kafka.common.header.Header;
 import org.junit.jupiter.api.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,12 +98,21 @@ public class KafkaHeaderTests {
         var messages = ConsumerAdapter.convertRecordsToMessageObject(consumerRecords);
 
         System.out.println("Найдено сообщений с заголовками: " + messages.size());
+        AtomicInteger messageCount = new AtomicInteger(0);
+
         messages.forEach(msg -> {
-            if (msg.getHeader() != null) {
-                System.out.println("   Заголовок: " + msg.getHeader().key() +
-                        " = " + new String(msg.getHeader().value()));
+            if (msg.getHeaders() != null && !msg.getHeaders().isEmpty()) {
+                messageCount.incrementAndGet();
+                System.out.println("   Сообщение " + messageCount.get() + " (Заголовков: " + msg.getHeaders().size() + "):");
+                for (Header header : msg.getHeaders()) {
+                    System.out.println("      -> " + header.key() +
+                            " = " + new String(header.value()));
+                }
             }
         });
+
+        assertTrue(messageCount.get() >= 3, "Должно найти хотя бы 3 сообщения, содержащих заголовки");
+
 
         System.out.println("✅ Успешно прочитаны сообщения с различными заголовками");
     }

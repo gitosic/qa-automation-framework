@@ -1,11 +1,11 @@
 package com.qa.framework.kafka;
 
 import com.google.gson.Gson;
+import com.qa.framework.config.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.header.Header;
 
 import java.util.Map;
 import java.util.Properties;
@@ -16,19 +16,11 @@ import java.util.concurrent.TimeoutException;
 
 public class ProducerAdapter {
 
-    private static KafkaProducer<String, String> createProducer(String bootstrapServers) {
-        final Properties props = CommonConfig.getKafkaProperties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
+    private static final KafkaConfig KAFKA_CONFIG = new KafkaConfig();
 
-        // Дополнительные настройки для надежности
-        props.put(ProducerConfig.ACKS_CONFIG, "all");
-        props.put(ProducerConfig.RETRIES_CONFIG, 3);
-        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-
+    private static KafkaProducer<String, String> createProducer() {
+        // Использование централизованного метода из KafkaConfig
+        final Properties props = KAFKA_CONFIG.getKafkaProducerProperties();
         return new KafkaProducer<>(props);
     }
 
@@ -36,7 +28,7 @@ public class ProducerAdapter {
                                       String topicName,
                                       Object message) {
 
-        final KafkaProducer<String, String> producer = createProducer(bootstrapServers);
+        final KafkaProducer<String, String> producer = createProducer();
 
         try {
             String jsonMessage = new Gson().toJson(message);
@@ -79,7 +71,7 @@ public class ProducerAdapter {
                                                  Object message,
                                                  Map<String, String> headers) {
 
-        final KafkaProducer<String, String> producer = createProducer(bootstrapServers);
+        final KafkaProducer<String, String> producer = createProducer();
 
         try {
             String jsonMessage = new Gson().toJson(message);
@@ -119,7 +111,7 @@ public class ProducerAdapter {
                                                       String topicName,
                                                       Object message) {
 
-        final KafkaProducer<String, String> producer = createProducer(bootstrapServers);
+        final KafkaProducer<String, String> producer = createProducer();
         String transactionId = UUID.randomUUID().toString();
 
         try {
