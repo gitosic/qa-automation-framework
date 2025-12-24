@@ -91,9 +91,9 @@ public class ProducerAdapter {
                 return false;
             } else {
                 System.out.println("✅ Message with headers was sent to topic " + topicName);
-                if (headers != null && headers.containsKey("X-Prepare-Transaction-Req-Id")) {
-                    System.out.println("   Transaction ID: " +
-                            headers.get("X-Prepare-Transaction-Req-Id"));
+                if (headers != null && headers.containsKey("X-Transaction-Req-Id")) {
+                    System.out.println("   X-Transaction-Req-Id: " +
+                            headers.get("X-Transaction-Req-Id"));
                 }
                 return true;
             }
@@ -119,7 +119,7 @@ public class ProducerAdapter {
             ProducerRecord<String, String> record = new ProducerRecord<>(topicName, jsonMessage);
 
             // Добавляем заголовки как в вашем коде
-            record.headers().add("X-Prepare-Transaction-Req-Id", transactionId.getBytes());
+            record.headers().add("X-Transaction-Req-Id", transactionId.getBytes());
             record.headers().add("X-Initiator-Service", "test-service".getBytes());
 
             RecordMetadata metadata = producer.send(record).get(10, TimeUnit.SECONDS);
@@ -128,13 +128,13 @@ public class ProducerAdapter {
                 System.err.println("❌ Record has not posted to topic " + topicName);
                 return null;
             } else {
-                System.out.println("✅ Message with transaction ID = " + transactionId +
+                System.out.println("✅ Message with X-Transaction-Req-Id = " + transactionId +
                         " was sent to topic " + topicName);
                 return transactionId;
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send message with transaction ID to Kafka topic " +
+            System.err.println("❌ Failed to send message with X-Transaction-Req-Id to Kafka topic " +
                     topicName + ": " + e.getMessage());
             return null;
         } finally {
