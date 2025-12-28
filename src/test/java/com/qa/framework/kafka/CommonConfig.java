@@ -6,7 +6,6 @@ public class CommonConfig {
 
     public static Properties getKafkaProperties(){
         Properties props = new Properties();
-        // Основные настройки как в вашем коде
         props.put("auto.offset.reset", "earliest");
 
         // SSL настройки (если нужно)

@@ -108,6 +108,37 @@ public final class ConfigurationManager {
         return getProperty("test.browser", "chrome");
     }
 
+    // === SSL GETTERS ===
+    public static boolean isKafkaSslEnabled() {
+        return Boolean.parseBoolean(getProperty("kafka.ssl.enabled", "false"));
+    }
+
+    public static String getKafkaSslTruststoreLocation() {
+        return getProperty("kafka.ssl.truststore.location");
+    }
+
+    public static String getKafkaSslTruststorePassword() {
+        return getProperty("kafka.ssl.truststore.password");
+    }
+
+    public static String getKafkaSslKeystoreLocation() {
+        return getProperty("kafka.ssl.keystore.location");
+    }
+
+    public static String getKafkaSslKeystorePassword() {
+        return getProperty("kafka.ssl.keystore.password");
+    }
+
+    public static String getKafkaSslKeyPassword() {
+        // Мы используем один и тот же пароль для Keystore и Key, но лучше считывать явно
+        return getProperty("kafka.ssl.key.password");
+    }
+
+    public static String getKafkaSslEndpointIdentificationAlgorithm() {
+        // Добавляем алгоритм, чтобы можно было его отключить (оставляя пустым)
+        return getProperty("kafka.ssl.endpoint.identification.algorithm");
+    }
+
     public static void printConfig() {
         System.out.println("=== Loaded DB configuration ===");
         System.out.println("URL     : " + getDbUrl());

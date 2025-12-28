@@ -1,7 +1,9 @@
 package com.qa.framework.config;
 
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -36,16 +38,37 @@ public class KafkaConfig {
      */
     private Properties getCommonKafkaProperties() {
         Properties props = new Properties();
-        // Настройки из старого CommonConfig
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        // Установка времени таймаута для соединения (полезно для SSL)
+        props.put(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, 30000);
+        props.put(CommonClientConfigs.SOCKET_CONNECTION_SETUP_TIMEOUT_MS_CONFIG, 5000);
 
-        // Здесь можно добавить настройки SSL, если они есть в ConfigurationManager
-        /*
-        // Пример добавления SSL
-        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, ConfigurationManager.getProperty("ssl.truststore.location"));
-        // и т.д.
-        */
+        // === ДОБАВЛЕНИЕ КОНФИГУРАЦИИ SSL ===
+        if (ConfigurationManager.isKafkaSslEnabled()) {
+            System.out.println("🔒 Применение настроек SSL для клиента Kafka...");
+
+            // 1. Протокол безопасности
+            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
+
+            // 2. Truststore
+            props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, ConfigurationManager.getKafkaSslTruststoreLocation());
+            props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, ConfigurationManager.getKafkaSslTruststorePassword());
+
+            // 3. Keystore (для аутентификации, если нужно)
+            // В нашем случае, Kafka настроен на KAFKA_SSL_CLIENT_AUTH: none, но эти поля все равно нужны для рукопожатия
+            props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, ConfigurationManager.getKafkaSslKeystoreLocation());
+            props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, ConfigurationManager.getKafkaSslKeystorePassword());
+
+            // 4. Пароль для приватного ключа
+            props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, ConfigurationManager.getKafkaSslKeyPassword());
+
+            // 5. Отключение проверки имени хоста (если бы мы использовали localhost:9094)
+            // Поскольку мы используем 'kafka', это не обязательно, но полезно для отладки.
+            String algo = ConfigurationManager.getKafkaSslEndpointIdentificationAlgorithm();
+            if (algo != null) {
+                props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, algo);
+            }
+        }
 
         return props;
     }

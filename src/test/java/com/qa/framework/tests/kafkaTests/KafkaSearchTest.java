@@ -28,11 +28,12 @@ public class KafkaSearchTest {
         System.out.println("   Топик: " + testTopic);
     }
 
+    @Tag("kafka-search")
     @Test
     @DisplayName("Поиск сообщения по testRunId за последние 60 минут")
     void testFindMessageByTestRunId() {
         System.out.println("\n🔍 Тест: поиск сообщения по testRunId");
-        String TargetTestRunId = "TEST-1766588829320";
+        String TargetTestRunId = "TEST-1766944888731";
 
         // 1. Ищем сообщение за последние 60 минут
         Optional<KafkaMessage> foundMessage = KafkaUtils.findMessageByTestRunId(
@@ -54,10 +55,10 @@ public class KafkaSearchTest {
     }
 
     @Test
-    @DisplayName("Проверка существования сообщения по testRunId")
+    @DisplayName("Проверка существования сообщения по testRunId за последние 60 минут")
     void testHasMessageWithTestRunId() {
         System.out.println("\n🔍 Тест: проверка существования сообщения");
-        String TargetTestRunId = "TEST-1766588829320";
+        String TargetTestRunId = "TEST-1766944888731";
 
         boolean exists = KafkaUtils.hasMessageWithTestRunId(
                 bootstrapServers,
@@ -79,7 +80,7 @@ public class KafkaSearchTest {
         System.out.println("\n🔍 Тест: поиск по любому полю JSON");
 
         // Можно искать по любому полю, например по orderId
-        String targetOrderId = "ORD-TX-1766588829320";
+        String targetOrderId = "ORD-TX-1766944888731";
 
         Optional<KafkaMessage> foundMessage = KafkaUtils.findMessageByField(
                 bootstrapServers,

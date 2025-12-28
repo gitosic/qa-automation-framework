@@ -118,7 +118,7 @@ public class ProducerAdapter {
             String jsonMessage = new Gson().toJson(message);
             ProducerRecord<String, String> record = new ProducerRecord<>(topicName, jsonMessage);
 
-            // Добавляем заголовки как в вашем коде
+            // Добавляем заголовки
             record.headers().add("X-Transaction-Req-Id", transactionId.getBytes());
             record.headers().add("X-Initiator-Service", "test-service".getBytes());
 

@@ -36,3 +36,23 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# SSL/TSL certificates
+*.jks
+*.p12
+*.pem
+*.crt
+*.key
+*.keystore
+*.truststore
+*.pfx
+
+# Password files
+*.creds
+*password*
+*secret*
+
+# Local kafka SSL directory
+kafka-ssl/
+certs/
+ssl-certs/
