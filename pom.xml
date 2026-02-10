@@ -188,10 +188,8 @@
                     </excludes>
 
                     <!-- Настройки для выполнения тестов по тегам -->
-                    <properties>
-                        <includeTags>${includeTags}</includeTags>
-                        <excludeTags>${excludeTags}</excludeTags>
-                    </properties>
+                    <groups>${includeTags}</groups>
+                    <excludedGroups>${excludeTags}</excludedGroups>
 
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
@@ -202,7 +200,10 @@
                         <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
                         <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
                         <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
-                        <test.env>${test.env:st}</test.env> <!-- Добавлена переменная окружения -->
+                        <test.env>${test.env:st}</test.env>
+                        <!-- Добавьте эти строки для правильной работы тегов -->
+                        <includeTags>${includeTags}</includeTags>
+                        <excludeTags>${excludeTags}</excludeTags>
                     </systemPropertyVariables>
                 </configuration>
                 <dependencies>
@@ -210,6 +211,12 @@
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjweaver</artifactId>
                         <version>1.9.21</version>
+                    </dependency>
+                    <!-- Добавьте эту зависимость для поддержки JUnit 5 тегов -->
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${junit.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -242,5 +249,33 @@
                 <excludeTags>integration</excludeTags>
             </properties>
         </profile>
+
+        <!-- Профиль для последовательного выполнения -->
+        <profile>
+            <id>sequential</id>
+            <properties>
+                <parallel.tests>1</parallel.tests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <parallel>none</parallel>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Профиль для параллельного выполнения -->
+        <profile>
+            <id>parallel</id>
+            <properties>
+                <parallel.tests>4</parallel.tests>
+            </properties>
+        </profile>
+
     </profiles>
 </project>

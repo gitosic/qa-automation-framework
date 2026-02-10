@@ -72,7 +72,7 @@ public class UiParameterizedLoginTest extends TestBase {
         // Используйте openBankApp вместо прямого open
         openBankApp("/login");
         loginPage.waitForPageLoad();
-        sleep(10000);
+        sleep(5000);
 
         loginPage.enterUsername(username)
                 .enterPassword(password)

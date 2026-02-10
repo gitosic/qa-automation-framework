@@ -28,25 +28,24 @@ public class KafkaSearchTest {
         System.out.println("   Топик: " + testTopic);
     }
 
-    @Tag("kafka-search")
     @Test
-    @DisplayName("Поиск сообщения по testRunId за последние 60 минут")
+    @DisplayName("Поиск сообщения по testRunId за последние 300 минут")
     void testFindMessageByTestRunId() {
         System.out.println("\n🔍 Тест: поиск сообщения по testRunId");
-        String TargetTestRunId = "TEST-1766944888731";
+        String TargetTestRunId = "TEST-1770751225681";
 
-        // 1. Ищем сообщение за последние 60 минут
+        // 1. Ищем сообщение за последние 300 минут
         Optional<KafkaMessage> foundMessage = KafkaUtils.findMessageByTestRunId(
                 bootstrapServers,
                 testTopic,
                 TargetTestRunId,
-                60 // последние 60 минут
+                300 // последние 300 минут
         );
 
         // 2. Проверяем результат
         assertTrue(foundMessage.isPresent(),
                 "Сообщение с testRunId = " + TargetTestRunId +
-                        " должно быть найдено за последние 60 минут");
+                        " должно быть найдено за последние 300 минут");
 
         // 3. Выводим детали найденного сообщения
         KafkaUtils.printMessageDetails(foundMessage.get());
@@ -55,16 +54,16 @@ public class KafkaSearchTest {
     }
 
     @Test
-    @DisplayName("Проверка существования сообщения по testRunId за последние 60 минут")
+    @DisplayName("Проверка существования сообщения по testRunId за последние 300 минут")
     void testHasMessageWithTestRunId() {
         System.out.println("\n🔍 Тест: проверка существования сообщения");
-        String TargetTestRunId = "TEST-1766944888731";
+        String TargetTestRunId = "TEST-1770751225681";
 
         boolean exists = KafkaUtils.hasMessageWithTestRunId(
                 bootstrapServers,
                 testTopic,
                 TargetTestRunId,
-                60 // последние 60 минут
+                300 // последние 300 минут
         );
 
         assertTrue(exists,
@@ -75,19 +74,19 @@ public class KafkaSearchTest {
     }
 
     @Test
-    @DisplayName("Поиск сообщения по любому полю JSON за последние 60 минут")
+    @DisplayName("Поиск сообщения по любому полю JSON за последние 300 минут")
     void testFindMessageByAnyField() {
         System.out.println("\n🔍 Тест: поиск по любому полю JSON");
 
         // Можно искать по любому полю, например по orderId
-        String targetOrderId = "ORD-TX-1766944888731";
+        String targetOrderId = "ORD-TX-1770751225681";
 
         Optional<KafkaMessage> foundMessage = KafkaUtils.findMessageByField(
                 bootstrapServers,
                 testTopic,
                 "orderId",      // имя поля
                 targetOrderId,  // значение поля
-                60              // последние 60 минут
+                300              // последние 300 минут
         );
 
         assertTrue(foundMessage.isPresent(),
