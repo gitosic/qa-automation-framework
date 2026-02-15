@@ -4,59 +4,183 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ========================================== -->
+    <!-- ИДЕНТИФИКАЦИЯ ПРОЕКТА                       -->
+    <!-- ========================================== -->
+    <!-- groupId - организационный идентификатор (обычно домен компании в обратном порядке) -->
     <groupId>com.qa</groupId>
+
+    <!-- artifactId - уникальное имя проекта/артефакта -->
     <artifactId>qa-automation-framework</artifactId>
+
+    <!-- version - версия проекта (SNAPSHOT означает версию в разработке) -->
     <version>1.0-SNAPSHOT</version>
+
+    <!-- packaging - тип упаковки (jar, war, pom). jar создает исполняемый Java-архив -->
     <packaging>jar</packaging>
 
+    <!-- ИСПРАВЛЕНО: было <n>, должно быть <name> -->
+    <!-- name - человекочитаемое имя проекта -->
     <name>QA Automation Framework</name>
+
+    <!-- description - краткое описание проекта -->
     <description>A modern UI and API test automation framework</description>
 
+    <!-- ========================================== -->
+    <!-- СВОЙСТВА ПРОЕКТА                            -->
+    <!-- ========================================== -->
+    <!-- Центральное место для хранения версий зависимостей и настроек.
+         Позволяет легко обновлять версии и избегать дублирования -->
     <properties>
+        <!-- Кодировка исходных файлов и ресурсов проекта -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Версия Java для компиляции исходников и целевой платформы -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- ===== ВЕРСИИ ОСНОВНЫХ ФРЕЙМВОРКОВ ===== -->
+        <!-- JUnit 5 - фреймворк для написания и запуска тестов -->
         <junit.version>5.10.0</junit.version>
+
+        <!-- Selenide - удобная обертка над Selenium для UI-тестирования -->
         <selenide.version>7.0.4</selenide.version>
+
+        <!-- REST Assured - библиотека для тестирования REST API -->
         <rest-assured.version>5.3.2</rest-assured.version>
+
+        <!-- Jackson - библиотека для работы с JSON (сериализация/десериализация) -->
         <jackson.version>2.15.3</jackson.version>
+
+        <!-- AssertJ - библиотека для выразительных проверок (assertions) -->
         <assertj.version>3.24.2</assertj.version>
+
+        <!-- Logback - система логирования -->
         <logback.version>1.4.11</logback.version>
+
+        <!-- ===== ВЕРСИИ ALLURE (система отчетности) ===== -->
         <allure-selenide.version>2.25.0</allure-selenide.version>
         <allure-rest-assured.version>2.25.0</allure-rest-assured.version>
         <allure-junit5.version>2.25.0</allure-junit5.version>
+        <allure.version>2.25.0</allure.version>
+
+        <!-- ===== ВСПОМОГАТЕЛЬНЫЕ БИБЛИОТЕКИ ===== -->
+        <!-- WireMock - инструмент для мокирования HTTP сервисов -->
         <wiremock.version>3.0.1</wiremock.version>
+
+        <!-- Lombok - библиотека для автоматической генерации кода (геттеры, сеттеры и т.д.) -->
         <lombok.version>1.18.32</lombok.version>
+
+        <!-- PostgreSQL - JDBC драйвер для работы с базой данных PostgreSQL -->
         <postgresql.version>42.6.0</postgresql.version>
+
+        <!-- Spring JDBC - упрощенная работа с базами данных -->
         <spring-jdbc.version>5.3.30</spring-jdbc.version>
+
+        <!-- Kafka - клиент для работы с Apache Kafka (система обмена сообщениями) -->
         <kafka-clients.version>3.5.0</kafka-clients.version>
+
+        <!-- JsonPath - библиотека для навигации и извлечения данных из JSON -->
         <json-path.version>2.8.0</json-path.version>
+
+        <!-- Gson - альтернативная библиотека Google для работы с JSON -->
         <gson.version>2.13.2</gson.version>
+
+        <!-- Awaitility - библиотека для асинхронных проверок с ожиданием -->
         <awaitility.version>4.2.0</awaitility.version>
+
+        <!-- Cucumber - фреймворк для BDD-тестирования (Behavior Driven Development) -->
+        <cucumber.version>7.15.0</cucumber.version>
+
+        <!-- AspectJ - необходим для работы Allure (переплетение байт-кода) -->
+        <aspectj.version>1.9.21</aspectj.version>
+
+        <!-- ===== НАСТРОЙКИ ЗАПУСКА ТЕСТОВ ===== -->
+        <!-- includeTags - теги тестов для включения в запуск (по умолчанию пусто = все тесты)
+             Может быть переопределено через -DincludeTags=ИмяТега -->
+        <includeTags></includeTags>
+
+        <!-- parallel.tests - количество параллельных потоков для выполнения тестов -->
         <parallel.tests>6</parallel.tests>
     </properties>
 
+    <!-- ========================================== -->
+    <!-- УПРАВЛЕНИЕ ЗАВИСИМОСТЯМИ                    -->
+    <!-- ========================================== -->
+    <!-- dependencyManagement - централизованное управление версиями зависимостей.
+         Не добавляет зависимости напрямую, а только определяет их версии.
+         Полезно в мультимодульных проектах для единообразия версий -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- JUnit BOM (Bill of Materials) - обеспечивает совместимость всех модулей JUnit 5 -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ========================================== -->
+    <!-- ЗАВИСИМОСТИ ПРОЕКТА                         -->
+    <!-- ========================================== -->
     <dependencies>
-        <!-- JUnit 5 for testing -->
+        <!-- ===== JUNIT 5 - ОСНОВНОЙ ФРЕЙМВОРК ДЛЯ ТЕСТИРОВАНИЯ ===== -->
+        <!-- JUnit Jupiter - движок для запуска JUnit 5 тестов.
+             Включает аннотации @Test, @BeforeEach, @AfterEach и т.д. -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
+            <!-- Версия берется из dependencyManagement (junit-bom) -->
+            <scope>test</scope> <!-- Используется только для тестов, не попадает в production -->
+        </dependency>
+
+        <!-- JUnit Platform Suite - позволяет создавать наборы тестов (test suites).
+             Необходим для запуска Cucumber тестов через JUnit Platform -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== CUCUMBER - BDD ФРЕЙМВОРК ===== -->
+        <!-- Cucumber Java - основная библиотека для написания шагов (step definitions) -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+
+        <!-- Cucumber JUnit Platform Engine - позволяет запускать Cucumber сценарии через JUnit 5 -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+
+        <!-- ===== SELENIDE - UI ТЕСТИРОВАНИЕ ===== -->
+        <!-- Selenide - высокоуровневая обертка над Selenium WebDriver.
+             Упрощает написание UI-тестов, автоматически ожидает элементы,
+             предоставляет удобный API для взаимодействия с веб-страницами -->
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>selenide</artifactId>
             <version>${selenide.version}</version>
         </dependency>
 
+        <!-- ===== REST ASSURED - API ТЕСТИРОВАНИЕ ===== -->
+        <!-- REST Assured - основная библиотека для тестирования REST API.
+             Позволяет делать HTTP запросы и проверять ответы -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- JSON Schema Validator - валидация JSON ответов по JSON Schema -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
@@ -64,37 +188,58 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== JACKSON - РАБОТА С JSON ===== -->
+        <!-- Jackson Databind - конвертация Java объектов в JSON и обратно (сериализация/десериализация) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- ===== LOGBACK - ЛОГИРОВАНИЕ ===== -->
+        <!-- Logback Classic - реализация SLF4J для логирования.
+             Позволяет записывать логи в консоль, файлы, с разными уровнями (INFO, DEBUG, ERROR) -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
 
+        <!-- ===== ALLURE - СИСТЕМА ОТЧЕТНОСТИ ===== -->
+        <!-- Allure Selenide - интеграция Selenide с Allure для красивых отчетов UI-тестов -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-selenide</artifactId>
-            <version>${allure-selenide.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-rest-assured</artifactId>
-            <version>${allure-rest-assured.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-junit5</artifactId>
-            <version>${allure-junit5.version}</version>
+            <version>${allure.version}</version>
             <scope>test</scope>
         </dependency>
 
+        <!-- Allure REST Assured - интеграция REST Assured с Allure для отчетов API-тестов -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Allure JUnit 5 - интеграция JUnit 5 с Allure -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Allure Cucumber 7 - интеграция Cucumber с Allure для BDD-отчетов -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- ===== WIREMOCK - МОКИРОВАНИЕ HTTP СЕРВИСОВ ===== -->
+        <!-- WireMock - создание моков (заглушек) для HTTP API.
+             Полезно для тестирования без реального backend -->
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock</artifactId>
@@ -102,6 +247,10 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== LOMBOK - УПРОЩЕНИЕ КОДА ===== -->
+        <!-- Lombok - автоматически генерирует геттеры, сеттеры, конструкторы и т.д.
+             через аннотации (@Getter, @Setter, @Data и др.)
+             scope=provided означает, что нужен только во время компиляции -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -109,6 +258,9 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- ===== ASSERTJ - ПРОДВИНУТЫЕ ПРОВЕРКИ ===== -->
+        <!-- AssertJ - библиотека для fluent assertions (цепочки проверок).
+             Делает тесты более читаемыми: assertThat(user.getName()).isEqualTo("John") -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -116,12 +268,17 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== POSTGRESQL - БАЗА ДАННЫХ ===== -->
+        <!-- PostgreSQL JDBC Driver - подключение к PostgreSQL базе данных из тестов -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
 
+        <!-- ===== SPRING JDBC - РАБОТА С БД ===== -->
+        <!-- Spring JDBC - упрощает работу с SQL запросами,
+             предоставляет JdbcTemplate для выполнения queries -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
@@ -129,6 +286,9 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== KAFKA - ОБМЕН СООБЩЕНИЯМИ ===== -->
+        <!-- Kafka Clients - для тестирования интеграции с Apache Kafka
+             (отправка/получение сообщений) -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -136,18 +296,25 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== ДОПОЛНИТЕЛЬНЫЕ JSON БИБЛИОТЕКИ ===== -->
+        <!-- JsonPath - для навигации по JSON с помощью JsonPath выражений
+             (похоже на XPath для XML) -->
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${json-path.version}</version>
         </dependency>
 
+        <!-- Gson - альтернатива Jackson от Google для работы с JSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
 
+        <!-- ===== AWAITILITY - АСИНХРОННЫЕ ПРОВЕРКИ ===== -->
+        <!-- Awaitility - удобная библиотека для ожидания асинхронных операций.
+             Пример: await().atMost(5, SECONDS).until(() -> condition) -->
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
@@ -157,103 +324,233 @@
 
     </dependencies>
 
+    <!-- ========================================== -->
+    <!-- СБОРКА ПРОЕКТА                              -->
+    <!-- ========================================== -->
     <build>
         <plugins>
+            <!-- ===== MAVEN COMPILER PLUGIN - КОМПИЛЯЦИЯ ===== -->
+            <!-- Компилирует Java код проекта -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
+                    <!-- release=17 включает компиляцию под Java 17 с проверкой API -->
                     <release>17</release>
-                    <!-- ИСКЛЮЧАЕМ ПРОБЛЕМНЫЕ ФАЙЛЫ ИЗ КОМПИЛЯЦИИ ТЕСТОВ -->
+
+                    <!-- ИСКЛЮЧАЕМ ПРОБЛЕМНЫЕ ФАЙЛЫ ИЗ КОМПИЛЯЦИИ ТЕСТОВ
+                         Если в папке patterns/ есть файлы с ошибками компиляции,
+                         они будут проигнорированы -->
                     <testExcludes>
                         <testExclude>**/patterns/**</testExclude>
                     </testExcludes>
                 </configuration>
             </plugin>
 
+            <!-- ===== MAVEN SUREFIRE PLUGIN - ЗАПУСК ТЕСТОВ ===== -->
+            <!-- Основной плагин для запуска unit и integration тестов -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
+                    <!-- ===== НАСТРОЙКИ ПАРАЛЛЕЛЬНОГО ВЫПОЛНЕНИЯ ===== -->
+                    <!-- parallel=methods - запускать тестовые методы параллельно -->
                     <parallel>methods</parallel>
+
+                    <!-- Количество параллельных потоков (берется из properties) -->
                     <threadCount>${parallel.tests}</threadCount>
+
+                    <!-- Ограничение на количество потоков (false = строго threadCount) -->
                     <useUnlimitedThreads>false</useUnlimitedThreads>
+
+                    <!-- Не использовать количество потоков на основе CPU ядер -->
                     <perCoreThreadCount>false</perCoreThreadCount>
 
-                    <!-- Исключаем папку со старыми тестами из запуска -->
+                    <!-- ===== ФИЛЬТРАЦИЯ ТЕСТОВЫХ КЛАССОВ ===== -->
+                    <!-- includes - какие тестовые классы ВКЛЮЧАТЬ в запуск -->
+                    <includes>
+                        <!-- Все классы, заканчивающиеся на Test.java -->
+                        <include>**/*Test.java</include>
+                        <!-- ВАЖНО: CucumberTest.java закомментирован, чтобы он НЕ запускался
+                             при обычном mvn clean test. Он запускается только через профиль
+                             cucumber-tests (-Pcucumber-tests) -->
+                    </includes>
+
+                    <!-- excludes - какие тестовые классы ИСКЛЮЧАТЬ из запуска -->
                     <excludes>
+                        <!-- Исключаем папку patterns (там могут быть примеры/шаблоны) -->
                         <exclude>**/patterns/**</exclude>
+
+                        <!-- КРИТИЧНО: Исключаем CucumberTest.java из обычного запуска.
+                             Это предотвращает ошибку "NoTestsDiscovered" когда запускаются
+                             JUnit тесты с тегом DataFromCsvSource (который не является Cucumber тегом) -->
+                        <exclude>**/CucumberTest.java</exclude>
                     </excludes>
 
-                    <!-- Настройки для выполнения тестов по тегам -->
+                    <!-- ===== ФИЛЬТРАЦИЯ ПО ТЕГАМ (JUnit 5 @Tag) ===== -->
+                    <!-- groups - запускать только тесты с указанными тегами
+                         Задается через -DincludeTags=ИмяТега или в профилях -->
                     <groups>${includeTags}</groups>
+
+                    <!-- excludedGroups - НЕ запускать тесты с указанными тегами -->
                     <excludedGroups>${excludeTags}</excludedGroups>
 
-                    <argLine>
-                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar"
-                    </argLine>
-
+                    <!-- ===== СИСТЕМНЫЕ СВОЙСТВА ДЛЯ ТЕСТОВ ===== -->
+                    <!-- Эти свойства доступны в тестах через System.getProperty() -->
                     <systemPropertyVariables>
+                        <!-- Путь для сохранения результатов Allure отчетов -->
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+
+                        <!-- Фильтр тегов для Cucumber (работает только при запуске CucumberTest)
+                             Пример: @shouldPASS, @regression -->
+                        <cucumber.filter.tags>${includeTags}</cucumber.filter.tags>
+
+                        <!-- URL удаленного Selenium Grid (например, Selenoid)
+                             Пример: http://localhost:4444/wd/hub -->
                         <remote.webdriver.url>${remote.webdriver.url}</remote.webdriver.url>
+
+                        <!-- Базовый URL для API тестов (значение по умолчанию: http://localhost:8080) -->
                         <baseUrl>${baseUrl:http://localhost:8080}</baseUrl>
+
+                        <!-- URL приложения для UI тестов (значение по умолчанию: http://localhost:3000) -->
                         <bankAppUrl>${bankAppUrl:http://localhost:3000}</bankAppUrl>
+
+                        <!-- Окружение для тестов: st (staging), prod, dev и т.д. -->
                         <test.env>${test.env:st}</test.env>
-                        <!-- Добавьте эти строки для правильной работы тегов -->
-                        <includeTags>${includeTags}</includeTags>
-                        <excludeTags>${excludeTags}</excludeTags>
                     </systemPropertyVariables>
+
+                    <!-- ===== НАСТРОЙКИ JVM ДЛЯ ЗАПУСКА ТЕСТОВ ===== -->
+                    <argLine>
+                        <!-- Установка кодировки UTF-8 для корректного отображения логов -->
+                        -Dfile.encoding=UTF-8
+
+                        <!-- AspectJ Weaver - необходим для работы Allure.
+                             Он "вплетает" код Allure в тесты во время выполнения,
+                             чтобы собирать информацию для отчетов (шаги, скриншоты и т.д.) -->
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
                 </configuration>
+
+                <!-- Зависимости плагина (нужны для работы AspectJ) -->
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjweaver</artifactId>
-                        <version>1.9.21</version>
-                    </dependency>
-                    <!-- Добавьте эту зависимость для поддержки JUnit 5 тегов -->
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit.version}</version>
+                        <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
 
+            <!-- ===== ALLURE MAVEN PLUGIN - ГЕНЕРАЦИЯ ОТЧЕТОВ ===== -->
+            <!-- Плагин для генерации красивых HTML отчетов Allure -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
                 <version>2.12.0</version>
                 <configuration>
-                    <reportVersion>2.25.0</reportVersion>
+                    <!-- Версия Allure для генерации отчетов -->
+                    <reportVersion>${allure.version}</reportVersion>
+
+                    <!-- Папка с результатами тестов (откуда брать данные) -->
                     <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
                 </configuration>
+                <!-- Команды:
+                     mvn allure:serve - запустить временный веб-сервер с отчетом
+                     mvn allure:report - сгенерировать отчет в target/site/allure-maven-plugin -->
             </plugin>
         </plugins>
     </build>
 
+
+    <!-- ========================================== -->
+    <!-- ПРОФИЛИ - РАЗЛИЧНЫЕ КОНФИГУРАЦИИ ЗАПУСКА    -->
+    <!-- ========================================== -->
+    <!-- Профили позволяют переключаться между разными наборами настроек.
+         Активация: mvn clean test -P<имя-профиля> -->
     <profiles>
-        <!-- Профиль для интеграционных тестов -->
+        <!-- ===== ПРОФИЛЬ ДЛЯ CUCUMBER ТЕСТОВ ===== -->
+        <!-- Использование: mvn clean test -Pcucumber-tests -DincludeTags=shouldPASS -->
+        <profile>
+            <id>cucumber-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- ВКЛЮЧАЕМ только CucumberTest.java -->
+                            <includes>
+                                <include>**/CucumberTest.java</include>
+                            </includes>
+
+                            <!-- ВАЖНО: Переопределяем excludes из основной конфигурации.
+                                 Без этого CucumberTest.java останется исключенным и не запустится -->
+                            <excludes>
+                                <exclude>**/patterns/**</exclude>
+                                <!-- НЕ исключаем CucumberTest.java здесь! -->
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- ===== ПРОФИЛЬ ДЛЯ ОБЫЧНЫХ (НЕ-CUCUMBER) ТЕСТОВ ===== -->
+        <!-- Использование: mvn clean test -Pregular-tests -->
+        <profile>
+            <id>regular-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/RegularTests.java</include>
+                                <include>**/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <!-- Явно исключаем Cucumber тесты -->
+                                <exclude>**/CucumberTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- ===== ПРОФИЛЬ ДЛЯ ИНТЕГРАЦИОННЫХ ТЕСТОВ ===== -->
+        <!-- Запускает только тесты с тегом @Tag("integration")
+             Использование: mvn clean test -Pintegration-tests -->
         <profile>
             <id>integration-tests</id>
             <properties>
+                <!-- Автоматически устанавливает фильтр по тегу integration -->
                 <includeTags>integration</includeTags>
             </properties>
         </profile>
 
-        <!-- Профиль для unit тестов -->
+        <!-- ===== ПРОФИЛЬ ДЛЯ UNIT ТЕСТОВ ===== -->
+        <!-- Запускает все тесты КРОМЕ интеграционных (@Tag("integration"))
+             Использование: mvn clean test -Punit-tests -->
         <profile>
             <id>unit-tests</id>
             <properties>
+                <!-- Исключает тесты с тегом integration -->
                 <excludeTags>integration</excludeTags>
             </properties>
         </profile>
 
-        <!-- Профиль для последовательного выполнения -->
+        <!-- ===== ПРОФИЛЬ ДЛЯ ПОСЛЕДОВАТЕЛЬНОГО ВЫПОЛНЕНИЯ ===== -->
+        <!-- Отключает параллельный запуск, тесты выполняются по одному.
+             Полезно для дебага или тестов, которые конфликтуют при параллельном запуске
+             Использование: mvn clean test -Psequential -->
         <profile>
             <id>sequential</id>
             <properties>
+                <!-- Устанавливаем 1 поток -->
                 <parallel.tests>1</parallel.tests>
             </properties>
             <build>
@@ -262,6 +559,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
+                            <!-- Полностью отключаем параллелизм -->
                             <parallel>none</parallel>
                         </configuration>
                     </plugin>
@@ -269,7 +567,9 @@
             </build>
         </profile>
 
-        <!-- Профиль для параллельного выполнения -->
+        <!-- ===== ПРОФИЛЬ ДЛЯ ПАРАЛЛЕЛЬНОГО ВЫПОЛНЕНИЯ ===== -->
+        <!-- Увеличивает параллелизм до 4 потоков (меньше чем по умолчанию 6)
+             Использование: mvn clean test -Pparallel -->
         <profile>
             <id>parallel</id>
             <properties>

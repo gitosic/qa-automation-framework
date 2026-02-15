@@ -51,7 +51,9 @@ aerokube/selenoid-ui --selenoid-uri http://selenoid:4444
 }
 }
 
-
+Cucumber:
+Командой "mvn clean test -Pcucumber-tests -DincludeTags=shouldPASS" запускается кукумберовский тест.
+Через class CucumberTest и через feature файл тоже. 
 
 Локальный режим (браузер на Mac). Запуск в ST окружении (по умолчанию):
 mvn clean test -DbankAppUrl=http://localhost:3000 -DincludeTags=DataFromCsvSource
@@ -81,4 +83,12 @@ mvn allure:serve
 
 Welcome to Bank App http://localhost:3000/#
 selenoid ui http://localhost:8090/#/
-UI for Apache Kafka http://localhost:8282/ 
+UI for Apache Kafka http://localhost:8282/
+
+/* оставлю пока это тут - потом удалю. 
+Командой "mvn clean test -Pcucumber-tests -DincludeTags=shouldPASS" запускается кукумберовский тест.
+Командами
+1) "mvn clean test -DincludeTags=DataFromCsvSource -Dremote.webdriver.url=http://localhost:4444/wd/hub -DbankAppUrl=http://localhost:3000 -Dparallel.enabled=true"
+2) "mvn clean test -DbankAppUrl=http://localhost:3000 -DincludeTags=DataFromCsvSource"
+   запустились ui тесты.
+*/
