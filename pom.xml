@@ -160,6 +160,13 @@
             <version>${cucumber.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- ===== SELENIDE - UI ТЕСТИРОВАНИЕ ===== -->
         <!-- Selenide - высокоуровневая обертка над Selenium WebDriver.
              Упрощает написание UI-тестов, автоматически ожидает элементы,

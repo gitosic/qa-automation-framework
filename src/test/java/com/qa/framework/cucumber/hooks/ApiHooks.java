@@ -1,5 +1,6 @@
 package com.qa.framework.cucumber.hooks;
 
+import com.qa.framework.cucumber.context.TestContext;
 import io.cucumber.java.Before;
 import io.cucumber.java.After;
 import io.cucumber.java.BeforeAll;
@@ -10,6 +11,17 @@ import org.slf4j.LoggerFactory;
 
 public class ApiHooks {
     private static final Logger log = LoggerFactory.getLogger(ApiHooks.class);
+
+    private final TestContext context;
+
+    public ApiHooks(TestContext context) {
+        this.context = context;
+    }
+
+    @After
+    public void cleanContext() {
+        context.clear();
+    }
 
     @BeforeAll
     public static void beforeAll() {

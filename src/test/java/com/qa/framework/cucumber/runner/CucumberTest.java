@@ -12,6 +12,6 @@ import org.junit.platform.suite.api.*;
 // Эту строку можно оставить для запуска из IDE,
 // но Maven перезапишет её через <systemPropertyVariables>, если передать -DincludeTags
 @ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "pretty, io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
-@ConfigurationParameter(key = Constants.FILTER_TAGS_PROPERTY_NAME, value = "@shouldPASS")
+@ConfigurationParameter(key = Constants.FILTER_TAGS_PROPERTY_NAME, value = "@should1")
 public class CucumberTest {
 }
