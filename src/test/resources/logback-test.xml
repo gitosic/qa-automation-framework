@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+        ===== УРОВНИ ЛОГИРОВАНИЯ =====
+        ERROR   - только ошибки
+        WARN    - ошибки + предупреждения
+        INFO    - ошибки + предупреждения + информационные сообщения
+        DEBUG   - всё выше + отладочная информация
+        TRACE   - максимально подробно
+    -->
+
+    <!--
+        ===== TESTCONTAINERS =====
+        Оставляем WARN, чтобы видеть предупреждения о проблемах с Docker
+    -->
+    <logger name="org.testcontainers" level="WARN"/>
+    <logger name="org.testcontainers.shaded" level="WARN"/>
+    <logger name="com.github.dockerjava" level="WARN"/>
+    <logger name="com.github.dockerjava.zerodep" level="WARN"/>
+
+    <!--
+        ===== KAFKA CLIENT =====
+        Ставим ERROR, чтобы видеть только реальные проблемы
+        INFO логи Kafka нам не нужны в тестах
+
+        Если в будущем понадобится отладить проблему с Kafka,
+        то просто временно измените уровень на DEBUG вместо ERROR:
+    -->
+    <logger name="org.apache.kafka" level="ERROR"/>
+    <logger name="org.apache.kafka.clients" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.producer" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.consumer" level="ERROR"/>
+    <logger name="kafka" level="ERROR"/>
+
+    <!--
+        ===== НАШИ ЛОГГЕРЫ =====
+        Можно настроить логи для ваших классов
+    -->
+    <logger name="com.qa.framework.testcontainers" level="INFO"/>
+    <logger name="com.qa.framework.kafka" level="INFO"/>
+
+    <!--
+        ===== КОРНЕВОЙ ЛОГГЕР =====
+        Уровень по умолчанию для всего остального
+    -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!--
+        ===== КОНСОЛЬНЫЙ АППЕНДЕР =====
+        Определяет, как и куда писать логи
+    -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Формат: время [поток] уровень - сообщение -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+        ===== (ОПЦИОНАЛЬНО) ФАЙЛОВЫЙ АППЕНДЕР =====
+        Если хотите сохранять логи в файл
+    -->
+    <!--
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>target/test-logs.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    -->
+</configuration>

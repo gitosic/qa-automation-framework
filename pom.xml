@@ -36,8 +36,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Версия Java для компиляции исходников и целевой платформы -->
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
 
         <!-- ===== ВЕРСИИ ОСНОВНЫХ ФРЕЙМВОРКОВ ===== -->
         <!-- JUnit 5 - фреймворк для написания и запуска тестов -->
@@ -95,13 +95,15 @@
         <!-- AspectJ - необходим для работы Allure (переплетение байт-кода) -->
         <aspectj.version>1.9.21</aspectj.version>
 
+        <testcontainers.version>1.20.1</testcontainers.version>
+
         <!-- ===== НАСТРОЙКИ ЗАПУСКА ТЕСТОВ ===== -->
         <!-- includeTags - теги тестов для включения в запуск (по умолчанию пусто = все тесты)
              Может быть переопределено через -DincludeTags=ИмяТега -->
         <includeTags></includeTags>
 
         <!-- parallel.tests - количество параллельных потоков для выполнения тестов -->
-        <parallel.tests>6</parallel.tests>
+        <parallel.tests>2</parallel.tests>
     </properties>
 
     <!-- ========================================== -->
@@ -329,6 +331,40 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Уже есть Testcontainers PostgreSQL, добавьте Kafka модуль -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Kafka клиент уже есть в вашем pom.xml -->
+        <!-- <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-clients.version}</version>
+            <scope>test</scope>
+        </dependency> -->
+
     </dependencies>
 
     <!-- ========================================== -->
@@ -343,8 +379,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <!-- release=17 включает компиляцию под Java 17 с проверкой API -->
-                    <release>17</release>
+                    <!-- release=22 включает компиляцию под Java 22 с проверкой API -->
+                    <release>22</release>
 
                     <!-- ИСКЛЮЧАЕМ ПРОБЛЕМНЫЕ ФАЙЛЫ ИЗ КОМПИЛЯЦИИ ТЕСТОВ
                          Если в папке patterns/ есть файлы с ошибками компиляции,
@@ -432,7 +468,7 @@
                     <argLine>
                         <!-- Установка кодировки UTF-8 для корректного отображения логов -->
                         -Dfile.encoding=UTF-8
-
+                        --add-opens java.base/java.lang=ALL-UNNAMED
                         <!-- AspectJ Weaver - необходим для работы Allure.
                              Он "вплетает" код Allure в тесты во время выполнения,
                              чтобы собирать информацию для отчетов (шаги, скриншоты и т.д.) -->
@@ -580,7 +616,7 @@
         <profile>
             <id>parallel</id>
             <properties>
-                <parallel.tests>4</parallel.tests>
+                <parallel.tests>2</parallel.tests>
             </properties>
         </profile>
 
